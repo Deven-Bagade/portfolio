@@ -1,205 +1,411 @@
-import { Code2, MessageSquare, TrendingUp } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
-import { motion, useInView } from 'motion/react';
+import { useState, useRef, useEffect } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { Terminal, Layers, Server, Database, Wrench, Sparkles } from 'lucide-react';
 
-interface SkillBarProps {
-  name: string;
-  level: number;
+// ── Fonts ─────────────────────────────────────────────────────────────────────
+// Add to your global CSS / index.html:
+// @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;500;700&display=swap');
+
+// ── Types ────────────────────────────────────────────────────────────────────
+interface TechGroup {
+  category: string;
+  icon: React.ElementType;
   color: string;
-  delay?: number;
+  bg: string;
+  border: string;
+  tags: string[];
 }
 
-function SkillBar({ name, level, color, delay = 0 }: SkillBarProps) {
-  const [width, setWidth] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
+interface SoftSkill {
+  title: string;
+  blurb: string;
+}
 
-  useEffect(() => {
-    if (isInView) {
-      setTimeout(() => setWidth(level), 100 + delay);
-    }
-  }, [isInView, level, delay]);
+// ── Data ─────────────────────────────────────────────────────────────────────
+const TECH_GROUPS: TechGroup[] = [
+  {
+    category: 'Languages',
+    icon: Terminal,
+    color: '#7c6fcd',
+    bg: 'rgba(124,111,205,0.08)',
+    border: 'rgba(124,111,205,0.22)',
+    tags: ['Java', 'JavaScript', 'C', 'Dart'],
+  },
+  {
+    category: 'Frontend & Mobile',
+    icon: Layers,
+    color: '#3a8fc7',
+    bg: 'rgba(58,143,199,0.08)',
+    border: 'rgba(58,143,199,0.22)',
+    tags: ['React', 'Flutter', 'Tailwind CSS', 'Android Studio', 'Java Swing'],
+  },
+  {
+    category: 'Backend & APIs',
+    icon: Server,
+    color: '#2daa84',
+    bg: 'rgba(45,170,132,0.08)',
+    border: 'rgba(45,170,132,0.22)',
+    tags: ['Node.js', 'Express.js', 'Firebase', 'REST APIs', 'JWT', 'OAuth 2.0', 'Apache Tomcat', '100ms'],
+  },
+  {
+    category: 'Databases',
+    icon: Database,
+    color: '#d4913a',
+    bg: 'rgba(212,145,58,0.08)',
+    border: 'rgba(212,145,58,0.22)',
+    tags: ['MongoDB', 'MySQL', 'Firestore'],
+  },
+  {
+    category: 'Tooling & Workflow',
+    icon: Wrench,
+    color: '#c96060',
+    bg: 'rgba(201,96,96,0.08)',
+    border: 'rgba(201,96,96,0.22)',
+    tags: ['Git', 'GitHub', 'Google APIs', 'Agile', 'CI/CD', 'Code Review'],
+  },
+];
+
+const ALL_TAGS = TECH_GROUPS.flatMap(g => g.tags.map(t => ({ tag: t, color: g.color, border: g.border, bg: g.bg })));
+
+const SOFT_SKILLS: SoftSkill[] = [
+  { title: 'Problem decomposer', blurb: 'I break complex systems into clear, buildable pieces before writing a single line.' },
+  { title: 'Collaborator first', blurb: 'Cross-functional teams, async-friendly comms, zero silos.' },
+  { title: 'Fast learner', blurb: 'New stack? Give me a weekend and a good README.' },
+  { title: 'Detail-driven', blurb: 'Ownership over output — every edge case ships with the feature.' },
+  { title: 'Agile practitioner', blurb: 'Iterative builds, quick pivots, continuous delivery mindset.' },
+];
+
+// ── Marquee ──────────────────────────────────────────────────────────────────
+function Marquee() {
+  const doubled = [...ALL_TAGS, ...ALL_TAGS];
+  return (
+    <div
+      style={{
+        overflow: 'hidden',
+        maskImage: 'linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)',
+        WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)',
+        marginBottom: 48,
+      }}
+    >
+      <motion.div
+        style={{ display: 'flex', gap: 10, width: 'max-content' }}
+        animate={{ x: ['0%', '-50%'] }}
+        transition={{ duration: 32, ease: 'linear', repeat: Infinity }}
+      >
+        {doubled.map(({ tag, color, bg, border }, i) => (
+          <span
+            key={i}
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 12,
+              padding: '6px 14px',
+              borderRadius: 999,
+              border: `1px solid ${border}`,
+              background: bg,
+              color,
+              whiteSpace: 'nowrap',
+              fontWeight: 400,
+              letterSpacing: '0.02em',
+            }}
+          >
+            {tag}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Tag chip ─────────────────────────────────────────────────────────────────
+function Tag({ label, color, bg, border }: { label: string; color: string; bg: string; border: string }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <motion.span
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      animate={{ y: hovered ? -3 : 0, scale: hovered ? 1.04 : 1 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+      style={{
+        fontFamily: "'DM Mono', monospace",
+        fontSize: 12,
+        padding: '6px 14px',
+        borderRadius: 8,
+        border: `1px solid ${hovered ? color : border}`,
+        background: hovered ? bg : 'rgba(255,255,255,0.03)',
+        color: hovered ? color : 'rgba(255,255,255,0.55)',
+        whiteSpace: 'nowrap',
+        cursor: 'default',
+        transition: 'color 0.2s, background 0.2s, border-color 0.2s',
+        display: 'inline-block',
+      }}
+    >
+      {label}
+    </motion.span>
+  );
+}
+
+// ── Group card ────────────────────────────────────────────────────────────────
+function GroupCard({ group, index }: { group: TechGroup; index: number }) {
+  const Icon = group.icon;
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: false, amount: 0.15 });
 
   return (
     <motion.div
       ref={ref}
-      className="mb-6"
-      initial={{ opacity: 0, x: -20 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.5, delay: delay / 1000 }}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      transition={{ duration: 0.6, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        borderRadius: 20,
+        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(16px)',
+        padding: '24px 24px 20px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-white/80">{name}</span>
-        <span className="text-sm text-white/50">{level}%</span>
+      {/* top shimmer */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 1,
+        background: `linear-gradient(90deg,transparent,${group.color}44,transparent)`,
+      }} />
+
+      {/* header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+        <div style={{
+          width: 34, height: 34, borderRadius: 10,
+          background: group.bg,
+          border: `1px solid ${group.border}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <Icon size={15} color={group.color} />
+        </div>
+        <span style={{
+          fontFamily: "'DM Mono', monospace",
+          fontSize: 11,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: group.color,
+          fontWeight: 500,
+        }}>
+          {group.category}
+        </span>
       </div>
-      <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ease-out ${color}`}
-          style={{ width: `${width}%` }}
-        ></div>
+
+      {/* tags */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {group.tags.map(tag => (
+          <Tag key={tag} label={tag} color={group.color} bg={group.bg} border={group.border} />
+        ))}
       </div>
     </motion.div>
   );
 }
 
+// ── Soft skill card ───────────────────────────────────────────────────────────
+function SoftCard({ skill, index }: { skill: SoftSkill; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: false, amount: 0.2 });
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.55, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        borderRadius: 16,
+        border: `1px solid ${hovered ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'}`,
+        background: hovered ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
+        padding: '20px 20px',
+        transition: 'border-color 0.25s, background 0.25s',
+        transform: hovered ? 'translateY(-4px)' : 'none',
+        cursor: 'default',
+      }}
+    >
+      {/* counter */}
+      <span style={{
+        fontFamily: "'DM Mono', monospace",
+        fontSize: 10,
+        color: 'rgba(255,255,255,0.2)',
+        letterSpacing: '0.1em',
+        display: 'block',
+        marginBottom: 10,
+      }}>
+        {String(index + 1).padStart(2, '0')}
+      </span>
+
+      <h4 style={{
+        fontFamily: "'Outfit', sans-serif",
+        fontSize: 15,
+        fontWeight: 500,
+        color: '#f0f0f0',
+        marginBottom: 8,
+        lineHeight: 1.2,
+      }}>
+        {skill.title}
+      </h4>
+      <p style={{
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.45)',
+        lineHeight: 1.7,
+        margin: 0,
+        fontFamily: "'Outfit', sans-serif",
+        fontWeight: 300,
+      }}>
+        {skill.blurb}
+      </p>
+    </motion.div>
+  );
+}
+
+// ── Section header ────────────────────────────────────────────────────────────
+function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, amount: 0.2 }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      style={{ textAlign: 'center', marginBottom: 48 }}
+    >
+      <span style={{
+        fontFamily: "'DM Mono', monospace",
+        fontSize: 10,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: 'rgba(255,255,255,0.3)',
+        display: 'block',
+        marginBottom: 14,
+      }}>
+        {eyebrow}
+      </span>
+      <h2 style={{
+        fontFamily: "'DM Serif Display', serif",
+        fontStyle: 'italic',
+        fontSize: 'clamp(2.4rem, 5vw, 4rem)',
+        fontWeight: 400,
+        color: '#f5f5f5',
+        letterSpacing: '-0.01em',
+        lineHeight: 1.1,
+        marginBottom: sub ? 16 : 0,
+      }}>
+        {title}
+      </h2>
+      {sub && (
+        <p style={{
+          fontFamily: "'Outfit', sans-serif",
+          fontWeight: 300,
+          fontSize: 14,
+          color: 'rgba(255,255,255,0.38)',
+          maxWidth: 420,
+          margin: '0 auto',
+          lineHeight: 1.8,
+          letterSpacing: '0.01em',
+        }}>
+          {sub}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 export function Skills() {
-  const technicalSkills = {
-    'Languages': ['Java', 'JavaScript', 'C'],
-    'Full-Stack & Mobile': ['MERN Stack', 'Flutter', 'Firebase', 'Android Studio', 'REST APIs', 'JWT', 'OAuth 2.0', 'Google APIs'],
-    'Frameworks & Tools': ['Tailwind CSS', 'Java Swing', 'Apache Tomcat', '100ms'],
-    'Databases & Version Control': ['MySQL', 'MongoDB', 'Git', 'GitHub']
-  };
-
-  const skillLevels = [
-    { name: 'MERN Stack', level: 95, color: 'bg-gradient-to-r from-gray-400 to-gray-500' },
-    { name: 'Flutter & Firebase', level: 90, color: 'bg-gradient-to-r from-gray-500 to-gray-600' },
-    { name: 'Java & Servlets', level: 85, color: 'bg-gradient-to-r from-gray-600 to-gray-700' },
-    { name: 'REST APIs & JWT', level: 90, color: 'bg-gradient-to-r from-gray-400 to-gray-600' },
-    { name: 'MySQL & MongoDB', level: 88, color: 'bg-gradient-to-r from-gray-500 to-gray-700' },
-    { name: 'Git & GitHub', level: 92, color: 'bg-gradient-to-r from-gray-300 to-gray-500' }
-  ];
-
-  const softSkills = [
-    { name: 'Analytical problem-solving', icon: '🧠' },
-    { name: 'Team collaboration & communication', icon: '🤝' },
-    { name: 'Adaptability & quick learning', icon: '⚡' },
-    { name: 'Attention to detail & ownership', icon: '🎯' }
-  ];
-
   return (
     <section
       id="skills"
-      className="relative overflow-hidden py-24 px-4"
-      style={{ background: '#0a0a0a', fontFamily: "'Syne', sans-serif" }}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        padding: '120px 0 100px',
+        background: '#080808',
+        fontFamily: "'Outfit', sans-serif",
+      }}
     >
-      {/* Fonts */}
+      {/* Google Fonts */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;500;700&display=swap"
       />
 
-      {/* Grid texture overlay */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
+      {/* ── Background: fine dot grid ── */}
+      <div style={{
+        pointerEvents: 'none',
+        position: 'absolute', inset: 0, zIndex: 0,
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }} />
 
-      {/* Radial gradients - grayscale */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: `
-            radial-gradient(ellipse 60% 50% at 10% 30%, rgba(128,128,128,0.06) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 45% at 90% 70%, rgba(64,64,64,0.04) 0%, transparent 55%)
-          `,
-        }}
-      />
+      {/* ── Ambient halos ── */}
+      <div style={{
+        pointerEvents: 'none', position: 'absolute', inset: 0, zIndex: 0,
+        background:
+          'radial-gradient(ellipse 50% 40% at 20% 30%, rgba(124,111,205,0.06) 0%, transparent 70%),' +
+          'radial-gradient(ellipse 40% 35% at 80% 70%, rgba(45,170,132,0.05) 0%, transparent 65%)',
+      }} />
 
-      <div className="relative z-10 max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2
-            className="text-5xl md:text-6xl mb-4 font-black tracking-tight"
-            style={{
-              background: 'linear-gradient(135deg, #d1d5db, #ffffff, #9ca3af)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Skills & Expertise
-          </h2>
-          <p className="text-white/60 max-w-2xl mx-auto" style={{ fontFamily: "'Space Mono', monospace" }}>
-            A comprehensive toolkit built through hands-on projects, internships, and continuous learning
-          </p>
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: 1400, margin: '0 auto', padding: '0 clamp(16px, 4vw, 64px)' }}>
+
+        {/* ── Header ── */}
+        <SectionHeader
+          eyebrow="Capabilities"
+          title="Tools of the trade"
+          sub="A living toolkit, shaped by real projects and an appetite for whatever comes next."
+        />
+
+        {/* ── Scrolling marquee ── */}
+        <Marquee />
+
+        {/* ── Tech groups grid ── */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 14,
+          marginBottom: 72,
+        }}>
+          {TECH_GROUPS.map((group, i) => (
+            <GroupCard key={group.category} group={group} index={i} />
+          ))}
         </div>
 
-        {/* Skill Progress Bars (commented out in original, but we'll keep it ready) */}
-        
-        {/* <div className="mb-12">
-          <div className="bg-black/60 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-3xl text-white/90">Proficiency Levels</h3>
-            </div>
-            <div className="grid md:grid-cols-2 gap-x-8">
-              {skillLevels.map((skill, index) => (
-                <SkillBar key={skill.name} {...skill} delay={index * 100} />
-              ))}
-            </div>
-          </div>
-        </div> */}
-       
+        {/* ── Divider ── */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: false, amount: 0.5 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            height: 1,
+            background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)',
+            marginBottom: 72,
+            transformOrigin: 'left center',
+          }}
+        />
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          {/* Technical Skills */}
-          <div className="bg-black/60 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/10 hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
-                <Code2 className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-3xl text-white/90">Technical Skills</h3>
-            </div>
+        {/* ── Soft skills header ── */}
+        <SectionHeader
+          eyebrow="Beyond the stack"
+          title="How I work"
+        />
 
-            <div className="space-y-6">
-              {Object.entries(technicalSkills).map(([category, skills]) => (
-                <div key={category} className="group">
-                  <h4 className="text-sm text-white/80 mb-3 flex items-center gap-2">
-                    <div className="w-1 h-4 bg-gradient-to-b from-gray-400 to-gray-600 rounded"></div>
-                    {category}
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="px-4 py-2 bg-white/5 text-white/80 rounded-xl text-sm border border-white/10 hover:border-white/30 hover:bg-white/10 transition-all duration-300 cursor-default hover:scale-105"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Soft Skills */}
-          <div className="bg-black/60 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/10 hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
-                <MessageSquare className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-3xl text-white/90">Soft Skills</h3>
-            </div>
-
-            <div className="space-y-4">
-              {softSkills.map((skill, index) => (
-                <div
-                  key={skill.name}
-                  className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 hover:border-white/30 hover:bg-white/10 transition-all duration-300 group"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="text-3xl group-hover:scale-110 transition-transform">{skill.icon}</div>
-                  <p className="text-white/80 flex-1">{skill.name}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-white/10">
-              <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
-                <h4 className="text-lg text-white/90 mb-3">🎯 Additional Competencies</h4>
-                <p className="text-white/70">
-                  Experienced in Agile development, modular software engineering practices, 
-                  code review processes, and collaborative development workflows.
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* ── Soft skills grid ── */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 12,
+        }}>
+          {SOFT_SKILLS.map((skill, i) => (
+            <SoftCard key={skill.title} skill={skill} index={i} />
+          ))}
         </div>
+
       </div>
     </section>
   );

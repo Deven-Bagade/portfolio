@@ -70,11 +70,29 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 font-['Syne',_sans-serif] ${
           isScrolled
-            ? 'bg-black/95 backdrop-blur-2xl shadow-2xl border-b border-white/10'
-            : 'bg-transparent'
+            ? 'bg-black shadow-2xl border-b border-white/10'
+            : 'bg-black'
         }`}
+        style={{
+          backgroundColor: isScrolled ? '#000000' : '#000000',
+          backdropFilter: isScrolled ? 'blur(12px)' : 'none',
+        }}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        {/* Background overlay for better opacity when scrolled */}
+        {!isScrolled && (
+          <div 
+            className="absolute inset-0 bg-black"
+            style={{ opacity: 0.85 }}
+          />
+        )}
+        
+        {isScrolled && (
+          <div 
+            className="absolute inset-0 bg-black/95 backdrop-blur-xl"
+          />
+        )}
+
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
           <div className="flex items-center justify-between h-20 lg:h-24">
             {/* Logo */}
             <a
@@ -159,7 +177,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                 className="hidden lg:flex items-center gap-3 px-7 py-3 rounded-full text-sm font-bold tracking-wider transition-all duration-300"
                 style={{
                   fontFamily: "'Space Mono', monospace",
-                  background: 'linear-gradient(135deg, #ffffff1a, #ffffff0a)',
+                  background: '#ffffff1a',
                   border: '1px solid #ffffff33',
                   color: '#ffffff',
                   backdropFilter: 'blur(10px)'
@@ -170,7 +188,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, #ffffff1a, #ffffff0a)';
+                  e.currentTarget.style.background = '#ffffff1a';
                   e.currentTarget.style.borderColor = '#ffffff33';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
@@ -186,21 +204,17 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-3 rounded-full transition-all duration-300"
                 style={{
-                  backgroundColor: isScrolled ? '#ffffff1a' : 'transparent',
-                  border: isScrolled ? '1px solid #ffffff33' : 'none',
+                  backgroundColor: isScrolled ? '#ffffff1a' : '#ffffff0d',
+                  border: isScrolled ? '1px solid #ffffff33' : '1px solid #ffffff1a',
                   color: '#ffffff'
                 }}
                 onMouseEnter={(e) => {
-                  if (isScrolled) {
-                    e.currentTarget.style.backgroundColor = '#ffffff33';
-                    e.currentTarget.style.borderColor = '#ffffff66';
-                  }
+                  e.currentTarget.style.backgroundColor = '#ffffff33';
+                  e.currentTarget.style.borderColor = '#ffffff66';
                 }}
                 onMouseLeave={(e) => {
-                  if (isScrolled) {
-                    e.currentTarget.style.backgroundColor = '#ffffff1a';
-                    e.currentTarget.style.borderColor = '#ffffff33';
-                  }
+                  e.currentTarget.style.backgroundColor = isScrolled ? '#ffffff1a' : '#ffffff0d';
+                  e.currentTarget.style.borderColor = isScrolled ? '#ffffff33' : '#ffffff1a';
                 }}
               >
                 {isMobileMenuOpen ? (
@@ -223,13 +237,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
               className="absolute inset-0"
               style={{ background: 'linear-gradient(90deg, #ffffff, #999999, #ffffff)' }}
             />
-            <div 
-              className="absolute -right-1 -top-1 w-4 h-4 rounded-full blur-sm"
-              style={{ 
-                background: '#ffffff',
-                boxShadow: '0 0 20px #ffffff, 0 0 40px #ffffff66'
-              }}
-            />
+       
             <motion.div
               className="absolute inset-0"
               animate={{ opacity: [0.5, 1, 0.5] }}
@@ -244,20 +252,20 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop - Increased opacity */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 lg:hidden"
               style={{ 
-                backgroundColor: '#000000cc',
-                backdropFilter: 'blur(12px)'
+                backgroundColor: '#000000',
+                opacity: 0.95
               }}
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* Menu Panel */}
+            {/* Menu Panel - Solid background */}
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -265,8 +273,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="fixed top-24 right-6 left-6 z-40 lg:hidden overflow-hidden"
               style={{
-                background: '#000000f2',
-                backdropFilter: 'blur(20px)',
+                background: '#000000',
                 border: '1px solid #ffffff26',
                 borderRadius: '32px',
                 boxShadow: '0 40px 80px -15px rgba(0,0,0,0.9), inset 0 1px 0 0 #ffffff1a',

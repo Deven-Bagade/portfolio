@@ -81,6 +81,18 @@ const timelineData = [
   },
 ];
 
+// Easing function: ease-in-out cubic
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+// Shortest angular delta (handles wrap-around)
+function shortestAngleDelta(from, to) {
+  let delta = ((to - from) % 360 + 360) % 360;
+  if (delta > 180) delta -= 360;
+  return delta;
+}
+
 // --- 3. The Core Orbital Component ---
 function RadialOrbitalTimeline() {
   const [expandedItems, setExpandedItems] = useState({});
@@ -91,18 +103,51 @@ function RadialOrbitalTimeline() {
   const [activeNodeId, setActiveNodeId] = useState(null);
   // Store the frozen angle per node so position doesn't jump on hover
   const [frozenAngles, setFrozenAngles] = useState({});
-  const rotationRef = useRef(rotationAngle);
+
+  // Refs for smooth tween
+  const rotationRef = useRef(0);          // live angle (not state, avoids re-render lag)
+  const tweenRef = useRef(null);          // active RAF id
+  const autoSpinRef = useRef(null);       // auto-spin RAF id
+  const isTweeningRef = useRef(false);
   const containerRef = useRef(null);
 
   const ORBIT_RADIUS = 150;
+  const TWEEN_DURATION = 700; // ms
 
-  // Keep ref in sync for use inside intervals
-  useEffect(() => {
-    rotationRef.current = rotationAngle;
-  }, [rotationAngle]);
+  // Keep state in sync with ref for renders
+  const syncAngle = (angle) => {
+    rotationRef.current = ((angle % 360) + 360) % 360;
+    setRotationAngle(rotationRef.current);
+  };
 
   const getNodeAngle = (index) => {
-    return ((index / timelineData.length) * 360 + rotationAngle) % 360;
+    return ((index / timelineData.length) * 360 + rotationRef.current) % 360;
+  };
+
+  // Smooth tween to targetAngle using RAF
+  const tweenToAngle = (targetAngle) => {
+    if (tweenRef.current) cancelAnimationFrame(tweenRef.current);
+    if (autoSpinRef.current) cancelAnimationFrame(autoSpinRef.current);
+    isTweeningRef.current = true;
+
+    const startAngle = rotationRef.current;
+    const delta = shortestAngleDelta(startAngle, targetAngle);
+    const startTime = performance.now();
+
+    const step = (now) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / TWEEN_DURATION, 1);
+      const eased = easeInOutCubic(t);
+      syncAngle(startAngle + delta * eased);
+
+      if (t < 1) {
+        tweenRef.current = requestAnimationFrame(step);
+      } else {
+        isTweeningRef.current = false;
+        tweenRef.current = null;
+      }
+    };
+    tweenRef.current = requestAnimationFrame(step);
   };
 
   const toggleItem = (id, e) => {
@@ -112,16 +157,19 @@ function RadialOrbitalTimeline() {
       const newState = { [id]: isOpening };
       if (isOpening) {
         setActiveNodeId(id);
+        setFrozenAngles({});        // clear any frozen angles on open
         const related = timelineData.find(item => item.id === id)?.relatedIds || [];
         const newPulse = {};
         related.forEach(relId => (newPulse[relId] = true));
         setPulseEffect(newPulse);
         const nodeIndex = timelineData.findIndex((item) => item.id === id);
         const targetAngle = 270 - (nodeIndex / timelineData.length) * 360;
-        setRotationAngle(targetAngle);
+        tweenToAngle(targetAngle);
       } else {
         setActiveNodeId(null);
         setPulseEffect({});
+        isTweeningRef.current = false;
+        if (tweenRef.current) { cancelAnimationFrame(tweenRef.current); tweenRef.current = null; }
       }
       return newState;
     });
@@ -131,20 +179,31 @@ function RadialOrbitalTimeline() {
     setExpandedItems({});
     setActiveNodeId(null);
     setPulseEffect({});
+    isTweeningRef.current = false;
+    if (tweenRef.current) { cancelAnimationFrame(tweenRef.current); tweenRef.current = null; }
   };
 
-  // Pause rotation when hovering any node OR orbit area OR active node
+  // Auto-spin via RAF (smoother than setInterval)
   const shouldPause = isHoveringOrbit || hoveredNodeId !== null || activeNodeId !== null;
 
   useEffect(() => {
-    if (shouldPause) return;
-    const timer = setInterval(() => {
-      setRotationAngle((prev) => (prev + 0.15) % 360);
-    }, 40);
-    return () => clearInterval(timer);
+    if (shouldPause || isTweeningRef.current) return;
+    let lastTime = null;
+    const spin = (now) => {
+      if (lastTime !== null) {
+        const dt = now - lastTime;
+        syncAngle(rotationRef.current + (dt * 0.004)); // ~0.15deg per 40ms equiv
+      }
+      lastTime = now;
+      autoSpinRef.current = requestAnimationFrame(spin);
+    };
+    autoSpinRef.current = requestAnimationFrame(spin);
+    return () => {
+      if (autoSpinRef.current) cancelAnimationFrame(autoSpinRef.current);
+    };
   }, [shouldPause]);
 
-  // When a node is hovered, freeze its computed position
+  // When a node is hovered, freeze its computed position so it doesn't jump
   const handleNodeMouseEnter = (id) => {
     const index = timelineData.findIndex(i => i.id === id);
     const angle = getNodeAngle(index);
@@ -153,8 +212,16 @@ function RadialOrbitalTimeline() {
   };
 
   const handleNodeMouseLeave = (id) => {
+    // Adjust rotationRef so node stays in the same visual spot after unfreeze
+    if (frozenAngles[id] !== undefined) {
+      const index = timelineData.findIndex(i => i.id === id);
+      const baseAngle = (index / timelineData.length) * 360;
+      // rotationRef.current = frozenAngle - baseAngle  => node resumes from frozen spot
+      const correctedRotation = ((frozenAngles[id] - baseAngle) % 360 + 360) % 360;
+      rotationRef.current = correctedRotation;
+      setRotationAngle(correctedRotation);
+    }
     setHoveredNodeId(null);
-    // Clear the frozen angle so it resumes from live rotation
     setFrozenAngles(prev => {
       const next = { ...prev };
       delete next[id];
@@ -233,8 +300,9 @@ function RadialOrbitalTimeline() {
           position: 'absolute',
           width: 48,
           height: 48,
-          top: -24,
-          left: -24,
+ top: '50%',
+ left: '50%',
+ transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
           background: 'linear-gradient(135deg, #6b7280, #374151)',
           display: 'flex',
@@ -302,7 +370,6 @@ function RadialOrbitalTimeline() {
                 top: y,
                 transform: 'translate(-50%, -50%)',
                 zIndex: isExpanded ? 100 : (isHovered ? 60 : 30),
-                transition: 'left 0.05s linear, top 0.05s linear',
               }}
             >
               {/* Energy Pulse Ring */}
@@ -610,7 +677,7 @@ export function Hero() {
             </p>
 
             {/* Contact Info */}
-            <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'flex-start', gap: 16, marginBottom: 40, overflowX: 'auto', paddingBottom: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'flex-start', gap: 16, marginBottom: 40, overflowX: 'visible', paddingBottom: 8 }}>
               {[
                 { href: 'tel:+918369183414', icon: Phone, label: '+91 8369183414' },
                 { href: 'mailto:devenbofficial@gmail.com', icon: Mail, label: 'devenbofficial@gmail.com' },

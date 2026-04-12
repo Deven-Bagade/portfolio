@@ -1,174 +1,277 @@
-import { GraduationCap, Target, Heart, Award, BookOpen, Rocket, Sparkles } from 'lucide-react';
+import { GraduationCap, Target, Heart, Award, BookOpen, Rocket, Sparkles, ArrowUpRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 
-interface CounterProps {
-  end: number;
-  duration: number;
-  suffix?: string;
-}
+// ── Easing ────────────────────────────────────────────────────────────────────
+const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
 
-function Counter({ end, duration, suffix = '' }: CounterProps) {
+// ── Animated counter ──────────────────────────────────────────────────────────
+function Counter({ end, duration, suffix = '', decimals = 0 }: { end: number; duration: number; suffix?: string; decimals?: number }) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: false, amount: 0.5 });
 
   useEffect(() => {
     if (!isInView) return;
     let startTime: number | null = null;
-    const startValue = 0;
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = (timestamp - startTime) / (duration * 1000);
-      if (progress < 1) {
-        setCount(Math.floor(startValue + (end - startValue) * easeOutCubic(progress)));
-        requestAnimationFrame(animate);
-      } else {
-        setCount(end);
-      }
+    const animate = (ts: number) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / (duration * 1000), 1);
+      setCount(parseFloat((end * easeOutCubic(progress)).toFixed(decimals)));
+      if (progress < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
-  }, [isInView, end, duration]);
+  }, [isInView, end, duration, decimals]);
 
-  const easeOutCubic = (x: number): number => 1 - Math.pow(1 - x, 3);
-
-  return (
-    <div ref={ref} className="inline-block">
-      {count}{suffix}
-    </div>
-  );
+  return <span ref={ref}>{count.toFixed(decimals)}{suffix}</span>;
 }
 
+// ── Stagger helpers (animate in AND out on scroll) ───────────────────────────
+const EASE_IN  = [0.22, 1, 0.36, 1];
+const EASE_OUT = [0.55, 0, 0.8, 0.1];
+
+const fadeUp = (delay = 0) => ({
+  initial:     { opacity: 0, y: 36 },
+  whileInView: { opacity: 1, y: 0, transition: { duration: 0.65, delay, ease: EASE_IN } },
+  exit:        { opacity: 0, y: 36, transition: { duration: 0.4, ease: EASE_OUT } },
+  viewport:    { once: false, amount: 0.12 },
+});
+
+const fadeLeft = (delay = 0) => ({
+  initial:     { opacity: 0, x: -40 },
+  whileInView: { opacity: 1, x: 0, transition: { duration: 0.65, delay, ease: EASE_IN } },
+  exit:        { opacity: 0, x: -40, transition: { duration: 0.4, ease: EASE_OUT } },
+  viewport:    { once: false, amount: 0.12 },
+});
+
+const fadeRight = (delay = 0) => ({
+  initial:     { opacity: 0, x: 40 },
+  whileInView: { opacity: 1, x: 0, transition: { duration: 0.65, delay, ease: EASE_IN } },
+  exit:        { opacity: 0, x: 40, transition: { duration: 0.4, ease: EASE_OUT } },
+  viewport:    { once: false, amount: 0.12 },
+});
+
+// ── Thin horizontal rule ──────────────────────────────────────────────────────
+const HR = () => (
+  <div style={{ width: '100%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)', margin: '0 0 24px' }} />
+);
+
+// ── Main component ────────────────────────────────────────────────────────────
 export function About() {
   const reduceMotion = useReducedMotion();
+
+  const stats = [
+    { value: 9.65, decimals: 2, suffix: '', label: 'CGPA', icon: GraduationCap, accent: '#e2e8f0' },
+    { value: 5,    decimals: 0, suffix: '+', label: 'Projects', icon: Rocket,        accent: '#cbd5e1' },
+    { value: 15,   decimals: 0, suffix: '+', label: 'Technologies', icon: Award,     accent: '#94a3b8' },
+  ];
+
+  const cards = [
+    {
+      icon: GraduationCap,
+      title: 'Education Excellence',
+      body: 'Pursuing B.Tech in Information Technology with a 9.65 CGPA, building a strong foundation in computer science fundamentals and modern development practices.',
+      tag: 'Academic',
+      accent: '#e2e8f0',
+    },
+    {
+      icon: Target,
+      title: 'Career Goals',
+      body: 'Actively seeking opportunities to deliver value through technology-driven, scalable solutions. Aspiring to work on challenging problems that make real-world impact.',
+      tag: 'Ambition',
+      accent: '#cbd5e1',
+    },
+    {
+      icon: Heart,
+      title: 'Interests',
+      body: 'Passionate about open-source, hackathons, and applications that solve real problems. Enthusiastic about emerging technologies and creative engineering.',
+      tag: 'Passion',
+      accent: '#94a3b8',
+    },
+  ];
 
   return (
     <section
       id="about"
-      className="relative overflow-hidden py-24 px-4"
-      style={{ background: '#0a0a0a', fontFamily: "'Syne', sans-serif" }}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        padding: '112px 24px',
+        background: '#080808',
+        fontFamily: "'Syne', sans-serif",
+      }}
     >
-      {/* Fonts */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap"
-      />
+      {/* ── Google Fonts ── */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800;900&display=swap" />
 
-      {/* Grid texture overlay - grayscale */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
+      {/* ── Background grid ── */}
+      <div style={{
+        pointerEvents: 'none',
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
+        backgroundSize: '64px 64px',
+      }} />
 
-      {/* Radial gradients - grayscale */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: `
-            radial-gradient(ellipse 60% 50% at 10% 30%, rgba(128,128,128,0.08) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 45% at 90% 70%, rgba(64,64,64,0.06) 0%, transparent 55%)
-          `,
-        }}
-      />
+      {/* ── Radial halos ── */}
+      <div style={{
+        pointerEvents: 'none',
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        background: `
+          radial-gradient(ellipse 55% 45% at 8% 25%,  rgba(148,163,184,0.07) 0%, transparent 65%),
+          radial-gradient(ellipse 45% 40% at 92% 75%, rgba(100,116,139,0.06) 0%, transparent 60%)
+        `,
+      }} />
 
-      {/* Subtle scanline (only if reduced motion not preferred) - grayscale */}
+      {/* ── Scanline ── */}
       {!reduceMotion && (
         <motion.div
-          className="pointer-events-none absolute left-0 right-0 z-0 h-px"
-          style={{ background: 'rgba(255,255,255,0.05)' }}
-          animate={{ top: ['-2%', '102%'] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'linear', repeatDelay: 1.5 }}
+          style={{ pointerEvents: 'none', position: 'absolute', left: 0, right: 0, zIndex: 0, height: 1, background: 'rgba(255,255,255,0.04)' }}
+          animate={{ top: ['-2%', '104%'] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
         />
       )}
 
-      <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Section Header - grayscale gradient */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2
-            className="text-5xl md:text-6xl mb-4 font-black tracking-tight"
-            style={{
-              background: 'linear-gradient(135deg, #d1d5db, #ffffff, #9ca3af)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
+      {/* ── Content ── */}
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: 1100, margin: '0 auto' }}>
+
+        {/* ─── Section header ─── */}
+        <motion.div {...fadeUp(0)} style={{ textAlign: 'center', marginBottom: 80 }}>
+          {/* eyebrow */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '6px 18px', borderRadius: 9999,
+            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'rgba(255,255,255,0.04)',
+            marginBottom: 20,
+          }}>
+            <Sparkles size={14} style={{ color: '#94a3b8' }} />
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: '#94a3b8', textTransform: 'uppercase' }}>
+              Who I Am
+            </span>
+          </div>
+
+          <h2 style={{
+            fontSize: 'clamp(3rem, 6vw, 5rem)',
+            fontWeight: 900,
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+            marginBottom: 16,
+            background: 'linear-gradient(135deg, #f1f5f9 0%, #ffffff 40%, #94a3b8 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>
             About Me
           </h2>
-          <p
-            className="max-w-2xl mx-auto text-white"
-            style={{ fontFamily: "'Space Mono', monospace" }}
-          >
+
+          <p style={{
+            maxWidth: 520,
+            margin: '0 auto',
+            color: 'rgba(255,255,255,0.5)',
+            fontFamily: "'Space Mono', monospace",
+            fontSize: 13,
+            lineHeight: 1.8,
+            letterSpacing: '0.02em',
+          }}>
             Passionate developer crafting innovative solutions with clean code and user-centric design
           </p>
         </motion.div>
 
-        {/* Main Grid */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-16">
-          {/* Left Column */}
-          <div className="space-y-6">
-            {/* Background Card */}
-            <motion.div
-              initial={{ opacity: 0, x: -24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative rounded-3xl backdrop-blur-xl border border-white p-8 shadow-2xl"
-              style={{ background: 'rgba(0,0,0,0.65)' }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-lg">
-                  <BookOpen className="w-6 h-6 text-white" />
+        {/* ─── Main 2-col grid ─── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: 32, marginBottom: 32 }}>
+
+          {/* ── Left col ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+            {/* Background card */}
+            <motion.div {...fadeLeft(0.1)} style={{
+              position: 'relative',
+              borderRadius: 24,
+              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(15,15,15,0.85)',
+              backdropFilter: 'blur(24px)',
+              padding: 36,
+              boxShadow: '0 24px 48px rgba(0,0,0,0.5)',
+              overflow: 'hidden',
+            }}>
+              {/* top shimmer line */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
+
+              {/* corner accent */}
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(148,163,184,0.05)', filter: 'blur(20px)' }} />
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14,
+                  background: 'linear-gradient(135deg, #475569, #1e293b)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                  flexShrink: 0,
+                }}>
+                  <BookOpen size={22} color="#e2e8f0" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Background</h3>
+                <div>
+                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Background</h3>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    VIT Mumbai · 3rd Year
+                  </span>
+                </div>
               </div>
-              <p className="text-white leading-relaxed mb-4">
+
+              <HR />
+
+              <p style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, marginBottom: 14 }}>
                 I'm a 3rd-year B.Tech Information Technology student at Vidyalankar Institute of Technology,
-                Mumbai, maintaining a <span className="text-gray-300 font-semibold">9.65 CGPA</span>. My journey in technology has been driven by a passion for
-                creating impactful solutions that bridge the gap between user needs and technical innovation.
+                Mumbai, maintaining a{' '}
+                <span style={{ color: '#e2e8f0', fontWeight: 700 }}>9.65 CGPA</span>. My journey in technology has been
+                driven by a passion for creating impactful solutions that bridge the gap between user needs and technical innovation.
               </p>
-              <p className="text-white leading-relaxed">
-                With hands-on experience in full-stack web development and mobile app development, I've worked
-                on diverse projects ranging from mental health support applications to e-commerce platforms,
-                always focusing on scalability, user experience, and clean code practices.
+              <p style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, margin: 0 }}>
+                With hands-on experience in full-stack web and mobile app development, I've worked on diverse projects —
+                from mental health support applications to e-commerce platforms — always focusing on scalability, UX, and clean code.
               </p>
             </motion.div>
 
-            {/* Stats Cards - grayscale */}
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { value: 9.65, suffix: '', label: 'CGPA', icon: GraduationCap, gradient: 'from-gray-500 to-gray-600', color: '#9ca3af' },
-                { value: 5, suffix: '+', label: 'Projects', icon: Rocket, gradient: 'from-gray-600 to-gray-700', color: '#cbd5e1' },
-                { value: 15, suffix: '+', label: 'Technologies', icon: Award, gradient: 'from-gray-500 to-gray-800', color: '#e5e7eb' }
-              ].map((stat, index) => {
-                const StatIcon = stat.icon;
+            {/* Stats row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+              {stats.map((stat, i) => {
+                const Icon = stat.icon;
                 return (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                    whileHover={{ y: -6, scale: 1.03 }}
-                    className="relative rounded-2xl border border-white backdrop-blur-md p-4 text-center"
-                    style={{ background: 'rgba(0,0,0,0.6)' }}
+                    key={i}
+                    {...fadeUp(0.15 + i * 0.1)}
+                    whileHover={{ y: -6, scale: 1.04 }}
+                    style={{
+                      position: 'relative',
+                      borderRadius: 20,
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(15,15,15,0.8)',
+                      backdropFilter: 'blur(16px)',
+                      padding: '24px 12px',
+                      textAlign: 'center',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.4)',
+                      overflow: 'hidden',
+                      cursor: 'default',
+                    }}
                   >
-                    <div className={`w-10 h-10 mx-auto mb-3 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
-                      <StatIcon className="w-5 h-5 text-white" />
+                    {/* glow dot */}
+                    <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', width: 60, height: 60, borderRadius: '50%', background: `${stat.accent}12`, filter: 'blur(16px)' }} />
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 12,
+                      background: 'linear-gradient(135deg, rgba(71,85,105,0.8), rgba(30,41,59,0.9))',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 14px',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}>
+                      <Icon size={18} color={stat.accent} />
                     </div>
-                    <div className="text-2xl font-bold mb-1" style={{ color: stat.color }}>
-                      <Counter end={stat.value} duration={2000} suffix={stat.suffix} />
+                    <div style={{ fontSize: 26, fontWeight: 900, color: stat.accent, lineHeight: 1, marginBottom: 6, letterSpacing: '-0.02em' }}>
+                      <Counter end={stat.value} duration={2} suffix={stat.suffix} decimals={stat.decimals} />
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-white" style={{ fontFamily: "'Space Mono', monospace" }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
                       {stat.label}
                     </div>
                   </motion.div>
@@ -177,56 +280,66 @@ export function About() {
             </div>
           </div>
 
-          {/* Right Column - Feature Cards (grayscale) */}
-          <div className="space-y-6">
-            {[
-              {
-                icon: GraduationCap,
-                title: 'Education Excellence',
-                description: 'Currently pursuing B.Tech in Information Technology with a 9.65 CGPA, building a strong foundation in computer science fundamentals and modern development practices.',
-                gradient: 'from-gray-500 to-gray-600',
-                borderGlow: '#9ca3af'
-              },
-              {
-                icon: Target,
-                title: 'Career Goals',
-                description: 'Actively seeking opportunities to deliver value through technology-driven, scalable solutions. Aspiring to work on challenging problems that make a real-world impact.',
-                gradient: 'from-gray-600 to-gray-700',
-                borderGlow: '#cbd5e1'
-              },
-              {
-                icon: Heart,
-                title: 'Interests',
-                description: 'Passionate about open-source development, participating in hackathons, and building applications that solve real-world problems. Enthusiastic about emerging technologies.',
-                gradient: 'from-gray-500 to-gray-800',
-                borderGlow: '#e5e7eb'
-              }
-            ].map((item, index) => {
-              const ItemIcon = item.icon;
+          {/* ── Right col — feature cards ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {cards.map((card, i) => {
+              const Icon = card.icon;
               return (
                 <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: 24 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.15, duration: 0.6 }}
-                  whileHover={{ y: -5, scale: 1.01 }}
-                  className="group relative rounded-3xl backdrop-blur-xl border border-white p-6 transition-all duration-500"
-                  style={{ background: 'rgba(0,0,0,0.6)' }}
+                  key={i}
+                  {...fadeRight(0.1 + i * 0.14)}
+                  whileHover={{ y: -5 }}
+                  style={{
+                    position: 'relative',
+                    borderRadius: 24,
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    background: 'rgba(12,12,12,0.85)',
+                    backdropFilter: 'blur(20px)',
+                    padding: '28px 28px 26px',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.45)',
+                    overflow: 'hidden',
+                    cursor: 'default',
+                    transition: 'box-shadow 0.3s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px ${card.accent}22`)}
+                  onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.45)')}
                 >
-                  {/* Hover glow - subtle whitegray */}
-                  <div
-                    className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
-                    style={{ boxShadow: `0 0 40px ${item.borderGlow}`, background: `radial-gradient(circle at 30% 20%, ${item.borderGlow}20, transparent 70%)` }}
-                  />
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                        <ItemIcon className="w-7 h-7 text-white" />
-                      </div>
-                      <h4 className="text-xl font-bold text-white">{item.title}</h4>
+                  {/* top shimmer */}
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${card.accent}40, transparent)` }} />
+
+                  {/* ambient blob */}
+                  <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: `${card.accent}08`, filter: 'blur(30px)', pointerEvents: 'none' }} />
+
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                      background: 'linear-gradient(135deg, rgba(71,85,105,0.9), rgba(15,23,42,0.95))',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: `0 8px 20px rgba(0,0,0,0.5), 0 0 0 1px ${card.accent}18`,
+                    }}>
+                      <Icon size={22} color={card.accent} />
                     </div>
-                    <p className="text-white leading-relaxed">{item.description}</p>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <h4 style={{ fontSize: 17, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{card.title}</h4>
+                        <span style={{
+                          fontFamily: "'Space Mono', monospace",
+                          fontSize: 9,
+                          letterSpacing: '0.12em',
+                          textTransform: 'uppercase',
+                          color: card.accent,
+                          background: `${card.accent}14`,
+                          border: `1px solid ${card.accent}30`,
+                          padding: '3px 8px',
+                          borderRadius: 6,
+                        }}>
+                          {card.tag}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, margin: 0 }}>{card.body}</p>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -234,35 +347,99 @@ export function About() {
           </div>
         </div>
 
-        {/* Professional Summary Card - grayscale */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative group"
-        >
-          <div
-            className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-gray-500 via-gray-600 to-gray-700 blur-xl opacity-30 group-hover:opacity-60 transition duration-500"
-          />
-          <div className="relative rounded-3xl backdrop-blur-xl border border-white p-8 md:p-12" style={{ background: 'rgba(0,0,0,0.8)' }}>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-xl">
-                <Rocket className="w-8 h-8 text-white" />
+        {/* ─── Professional Summary banner ─── */}
+        <motion.div {...fadeUp(0.3)} style={{ position: 'relative' }}>
+          {/* outer glow ring */}
+          <div style={{
+            position: 'absolute', inset: -2, borderRadius: 28,
+            background: 'linear-gradient(135deg, rgba(71,85,105,0.5), rgba(30,41,59,0.3), rgba(148,163,184,0.2))',
+            filter: 'blur(12px)',
+            opacity: 0.6,
+            pointerEvents: 'none',
+          }} />
+
+          <div style={{
+            position: 'relative',
+            borderRadius: 28,
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(10,10,10,0.9)',
+            backdropFilter: 'blur(32px)',
+            padding: '48px 48px',
+            boxShadow: '0 32px 64px rgba(0,0,0,0.6)',
+            overflow: 'hidden',
+          }}>
+            {/* top shimmer */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }} />
+            {/* decorative circle */}
+            <div style={{ position: 'absolute', bottom: -60, right: -60, width: 200, height: 200, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -90, right: -90, width: 280, height: 280, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.025)', pointerEvents: 'none' }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 24 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+                background: 'linear-gradient(135deg, #475569, #0f172a)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 12px 28px rgba(0,0,0,0.6)',
+                border: '1px solid rgba(255,255,255,0.1)',
+              }}>
+                <Rocket size={26} color="#e2e8f0" />
               </div>
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-300 to-white bg-clip-text text-transparent text-white">
-                Professional Summary
-              </h3>
+              <div>
+                <h3 style={{
+                  fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
+                  fontWeight: 900,
+                  margin: 0,
+                  letterSpacing: '-0.025em',
+                  background: 'linear-gradient(90deg, #f1f5f9, #94a3b8)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                  Professional Summary
+                </h3>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                  Open to opportunities
+                </span>
+              </div>
             </div>
-            <p className="text-white leading-relaxed text-lg">
+
+            <HR />
+
+            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.68)', lineHeight: 1.85, margin: 0, maxWidth: 820 }}>
               B.Tech Information Technology 3rd-year student at Vidyalankar Institute of Technology with a{' '}
-              <span className="text-gray-300 font-semibold">9.65 CGPA</span>,
-              experienced in developing <span className="text-white font-semibold">full-stack web and mobile applications</span>. Proven ability to build impactful projects,
-              collaborate in hackathons, and contribute to open-source initiatives through internships and programs.
-              Actively seeking opportunities to deliver value through technology-driven, scalable solutions.
+              <span style={{ color: '#e2e8f0', fontWeight: 700 }}>9.65 CGPA</span>, experienced in developing{' '}
+              <span style={{ color: '#ffffff', fontWeight: 700 }}>full-stack web and mobile applications</span>. Proven ability to
+              build impactful projects, collaborate in hackathons, and contribute to open-source initiatives through internships
+              and programs. Actively seeking opportunities to deliver value through technology-driven, scalable solutions.
             </p>
+
+            {/* bottom row */}
+            <div style={{ marginTop: 28, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {['Full-Stack Dev', 'Mobile Apps', 'Open Source', 'Hackathons', 'Cloud & DevOps'].map((tag, i) => (
+                <motion.span
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  whileInView={{ opacity: 1, scale: 1, transition: { delay: 0.1 + i * 0.07, duration: 0.4, ease: [0.22,1,0.36,1] } }}
+                  exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.25 } }}
+                  viewport={{ once: false, amount: 0.5 }}
+                  style={{
+                    fontFamily: "'Space Mono', monospace",
+                    fontSize: 10,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.5)',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    padding: '5px 12px',
+                    borderRadius: 8,
+                  }}
+                >
+                  {tag}
+                </motion.span>
+              ))}
+            </div>
           </div>
         </motion.div>
+
       </div>
     </section>
   );
