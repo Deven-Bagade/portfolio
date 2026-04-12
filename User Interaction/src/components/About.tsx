@@ -105,7 +105,7 @@ export function About() {
             About Me
           </h2>
           <p
-            className="max-w-2xl mx-auto text-white/60"
+            className="max-w-2xl mx-auto text-white"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
             Passionate developer crafting innovative solutions with clean code and user-centric design
@@ -122,21 +122,21 @@ export function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative rounded-3xl backdrop-blur-xl border border-white/10 p-8 shadow-2xl"
+              className="relative rounded-3xl backdrop-blur-xl border border-white p-8 shadow-2xl"
               style={{ background: 'rgba(0,0,0,0.65)' }}
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-lg">
                   <BookOpen className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white/90">Background</h3>
+                <h3 className="text-2xl font-bold text-white">Background</h3>
               </div>
-              <p className="text-white/70 leading-relaxed mb-4">
+              <p className="text-white leading-relaxed mb-4">
                 I'm a 3rd-year B.Tech Information Technology student at Vidyalankar Institute of Technology,
                 Mumbai, maintaining a <span className="text-gray-300 font-semibold">9.65 CGPA</span>. My journey in technology has been driven by a passion for
                 creating impactful solutions that bridge the gap between user needs and technical innovation.
               </p>
-              <p className="text-white/70 leading-relaxed">
+              <p className="text-white leading-relaxed">
                 With hands-on experience in full-stack web development and mobile app development, I've worked
                 on diverse projects ranging from mental health support applications to e-commerce platforms,
                 always focusing on scalability, user experience, and clean code practices.
@@ -159,7 +159,7 @@ export function About() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1, duration: 0.5 }}
                     whileHover={{ y: -6, scale: 1.03 }}
-                    className="relative rounded-2xl border border-white/10 backdrop-blur-md p-4 text-center"
+                    className="relative rounded-2xl border border-white backdrop-blur-md p-4 text-center"
                     style={{ background: 'rgba(0,0,0,0.6)' }}
                   >
                     <div className={`w-10 h-10 mx-auto mb-3 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
@@ -168,7 +168,7 @@ export function About() {
                     <div className="text-2xl font-bold mb-1" style={{ color: stat.color }}>
                       <Counter end={stat.value} duration={2000} suffix={stat.suffix} />
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-white/50" style={{ fontFamily: "'Space Mono', monospace" }}>
+                    <div className="text-xs uppercase tracking-wider text-white" style={{ fontFamily: "'Space Mono', monospace" }}>
                       {stat.label}
                     </div>
                   </motion.div>
@@ -211,10 +211,10 @@ export function About() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.15, duration: 0.6 }}
                   whileHover={{ y: -5, scale: 1.01 }}
-                  className="group relative rounded-3xl backdrop-blur-xl border border-white/10 p-6 transition-all duration-500"
+                  className="group relative rounded-3xl backdrop-blur-xl border border-white p-6 transition-all duration-500"
                   style={{ background: 'rgba(0,0,0,0.6)' }}
                 >
-                  {/* Hover glow - subtle white/gray */}
+                  {/* Hover glow - subtle whitegray */}
                   <div
                     className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
                     style={{ boxShadow: `0 0 40px ${item.borderGlow}`, background: `radial-gradient(circle at 30% 20%, ${item.borderGlow}20, transparent 70%)` }}
@@ -224,9 +224,9 @@ export function About() {
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
                         <ItemIcon className="w-7 h-7 text-white" />
                       </div>
-                      <h4 className="text-xl font-bold text-white/90">{item.title}</h4>
+                      <h4 className="text-xl font-bold text-white">{item.title}</h4>
                     </div>
-                    <p className="text-white/70 leading-relaxed">{item.description}</p>
+                    <p className="text-white leading-relaxed">{item.description}</p>
                   </div>
                 </motion.div>
               );
@@ -245,16 +245,16 @@ export function About() {
           <div
             className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-gray-500 via-gray-600 to-gray-700 blur-xl opacity-30 group-hover:opacity-60 transition duration-500"
           />
-          <div className="relative rounded-3xl backdrop-blur-xl border border-white/10 p-8 md:p-12" style={{ background: 'rgba(0,0,0,0.8)' }}>
+          <div className="relative rounded-3xl backdrop-blur-xl border border-white p-8 md:p-12" style={{ background: 'rgba(0,0,0,0.8)' }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-xl">
                 <Rocket className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-300 to-white bg-clip-text text-transparent">
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-300 to-white bg-clip-text text-transparent text-white">
                 Professional Summary
               </h3>
             </div>
-            <p className="text-white/80 leading-relaxed text-lg">
+            <p className="text-white leading-relaxed text-lg">
               B.Tech Information Technology 3rd-year student at Vidyalankar Institute of Technology with a{' '}
               <span className="text-gray-300 font-semibold">9.65 CGPA</span>,
               experienced in developing <span className="text-white font-semibold">full-stack web and mobile applications</span>. Proven ability to build impactful projects,

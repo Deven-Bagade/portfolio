@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Moon, Sun, Home } from 'lucide-react';
+import { Menu, X, Home } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export function Navigation({ currentView, onBackToHome }: { currentView?: string; onBackToHome?: () => void }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const [isDark, setIsDark] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const isDetailView = currentView && currentView !== 'home';
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      
+      const winScroll = window.scrollY;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress((winScroll / height) * 100);
 
-      // Update active section based on scroll position
       const sections = ['home', 'about', 'skills', 'experience', 'projects', 'achievements', 'contact'];
       const current = sections.find(section => {
         const element = document.getElementById(section);
@@ -59,15 +63,20 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
 
   return (
     <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+      `}</style>
+
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 font-['Syne',_sans-serif] ${
           isScrolled
-            ? 'bg-white/80 backdrop-blur-xl shadow-2xl border-b border-gray-200/50'
+            ? 'bg-black/95 backdrop-blur-2xl shadow-2xl border-b border-white/10'
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex items-center justify-between h-20 lg:h-24">
+            {/* Logo */}
             <a
               href="#home"
               onClick={(e) => {
@@ -80,15 +89,24 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
               }}
               className="relative group"
             >
-              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Deven Bagade
+              <div className="text-2xl lg:text-3xl font-black tracking-tight relative">
+                <span className="relative z-10 text-white">
+                  Deven Bagade
+                </span>
+                <span 
+                  className="absolute -inset-1 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ background: 'linear-gradient(90deg, #ffffff, #666666)' }}
+                />
               </div>
-              <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
+              <div 
+                className="absolute -bottom-1 left-0 w-0 h-[2px] group-hover:w-full transition-all duration-500 ease-out"
+                style={{ background: 'linear-gradient(90deg, #ffffff, #666666)' }}
+              />
             </a>
 
             {/* Desktop Navigation */}
             {!isDetailView ? (
-              <div className="hidden lg:flex items-center space-x-1">
+              <div className="hidden lg:flex items-center gap-3 xl:gap-4">
                 {navLinks.map((link) => {
                   const isActive = activeSection === link.href.substring(1);
                   return (
@@ -96,106 +114,250 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                       key={link.name}
                       href={link.href}
                       onClick={(e) => handleNavClick(e, link.href)}
-                      className={`relative px-4 py-2 rounded-xl transition-all duration-300 ${
-                        isActive
-                          ? 'text-blue-600'
-                          : 'text-gray-700 hover:text-blue-600'
-                      }`}
+                      className="relative group"
                     >
-                      {link.name}
-                      {isActive && (
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-                      )}
+                      <div
+                        className={`relative px-6 xl:px-7 py-3 rounded-full text-sm font-bold tracking-wider transition-all duration-300 ${
+                          isActive
+                            ? 'text-black'
+                            : 'text-white/70 hover:text-white'
+                        }`}
+                        style={{
+                          fontFamily: "'Space Mono', monospace",
+                          letterSpacing: '0.1em'
+                        }}
+                      >
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeNav"
+                            className="absolute inset-0 rounded-full"
+                            style={{ 
+                              background: 'linear-gradient(135deg, #ffffff, #cccccc)',
+                              boxShadow: '0 0 20px rgba(255,255,255,0.3)'
+                            }}
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                        <span className="relative z-10">{link.name}</span>
+                        
+                        <div 
+                          className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                          style={{ 
+                            background: 'radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 70%)',
+                          }}
+                        />
+                      </div>
                     </a>
                   );
                 })}
               </div>
             ) : (
-              <button
+              <motion.button
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
                 onClick={onBackToHome}
-                className="hidden lg:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+                className="hidden lg:flex items-center gap-3 px-7 py-3 rounded-full text-sm font-bold tracking-wider transition-all duration-300"
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  background: 'linear-gradient(135deg, #ffffff1a, #ffffff0a)',
+                  border: '1px solid #ffffff33',
+                  color: '#ffffff',
+                  backdropFilter: 'blur(10px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#ffffff33';
+                  e.currentTarget.style.borderColor = '#ffffff66';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #ffffff1a, #ffffff0a)';
+                  e.currentTarget.style.borderColor = '#ffffff33';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
-                <Home className="w-5 h-5" />
+                <Home className="w-4 h-4" />
                 <span>Back to Home</span>
-              </button>
+              </motion.button>
             )}
 
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsDark(!isDark)}
-                className="p-2 rounded-xl hover:bg-gray-100 transition-colors hidden lg:block"
-              >
-                {isDark ? (
-                  <Sun className="w-5 h-5 text-gray-700" />
-                ) : (
-                  <Moon className="w-5 h-5 text-gray-700" />
-                )}
-              </button>
-
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors"
+                className="lg:hidden p-3 rounded-full transition-all duration-300"
+                style={{
+                  backgroundColor: isScrolled ? '#ffffff1a' : 'transparent',
+                  border: isScrolled ? '1px solid #ffffff33' : 'none',
+                  color: '#ffffff'
+                }}
+                onMouseEnter={(e) => {
+                  if (isScrolled) {
+                    e.currentTarget.style.backgroundColor = '#ffffff33';
+                    e.currentTarget.style.borderColor = '#ffffff66';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (isScrolled) {
+                    e.currentTarget.style.backgroundColor = '#ffffff1a';
+                    e.currentTarget.style.borderColor = '#ffffff33';
+                  }
+                }}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-5 h-5" />
                 )}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50">
-          <div
-            className="h-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 transition-all duration-300"
-            style={{
-              width: `${(window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100}%`
-            }}
-          ></div>
+        {/* Premium Progress Bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/5">
+          <motion.div
+            className="h-full relative"
+            style={{ width: `${scrollProgress}%` }}
+          >
+            <div 
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(90deg, #ffffff, #999999, #ffffff)' }}
+            />
+            <div 
+              className="absolute -right-1 -top-1 w-4 h-4 rounded-full blur-sm"
+              style={{ 
+                background: '#ffffff',
+                boxShadow: '0 0 20px #ffffff, 0 0 40px #ffffff66'
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ background: 'linear-gradient(90deg, transparent, #ffffff, transparent)' }}
+            />
+          </motion.div>
         </div>
       </nav>
 
-      {/* Mobile Navigation */}
-      <div
-        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${
-          isMobileMenuOpen ? 'visible' : 'invisible'
-        }`}
-      >
-        <div
-          className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-            isMobileMenuOpen ? 'opacity-100' : 'opacity-0'
-          }`}
-          onClick={() => setIsMobileMenuOpen(false)}
-        ></div>
-        <div
-          className={`absolute top-20 right-4 left-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 transition-all duration-300 ${
-            isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-          }`}
-        >
-          <div className="px-4 py-4 space-y-2">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.href.substring(1);
-              return (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className={`block px-4 py-3 rounded-xl transition-all duration-300 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                      : 'text-gray-700 hover:bg-blue-50'
-                  }`}
-                >
-                  {link.name}
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      {/* Mobile Navigation Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 lg:hidden"
+              style={{ 
+                backgroundColor: '#000000cc',
+                backdropFilter: 'blur(12px)'
+              }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+
+            {/* Menu Panel */}
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed top-24 right-6 left-6 z-40 lg:hidden overflow-hidden"
+              style={{
+                background: '#000000f2',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid #ffffff26',
+                borderRadius: '32px',
+                boxShadow: '0 40px 80px -15px rgba(0,0,0,0.9), inset 0 1px 0 0 #ffffff1a',
+              }}
+            >
+              {/* Top glow line */}
+              <div 
+                className="absolute top-0 left-0 w-full h-[1px]"
+                style={{ background: 'linear-gradient(90deg, transparent, #ffffff4d, transparent)' }}
+              />
+
+              <div className="p-8 space-y-3">
+                {navLinks.map((link, index) => {
+                  const isActive = activeSection === link.href.substring(1);
+                  return (
+                    <motion.a
+                      key={link.name}
+                      href={link.href}
+                      onClick={(e) => handleNavClick(e, link.href)}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="block relative group"
+                    >
+                      <div
+                        className={`relative px-6 py-5 rounded-xl transition-all duration-300 overflow-hidden ${
+                          isActive
+                            ? 'text-black'
+                            : 'text-white/80 hover:text-white'
+                        }`}
+                        style={{
+                          fontFamily: "'Space Mono', monospace",
+                          fontWeight: 'bold',
+                          letterSpacing: '0.1em',
+                          fontSize: '1rem'
+                        }}
+                      >
+                        {isActive && (
+                          <motion.div
+                            layoutId="mobileActiveNav"
+                            className="absolute inset-0 rounded-xl"
+                            style={{ 
+                              background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
+                              boxShadow: '0 0 30px rgba(255,255,255,0.3)'
+                            }}
+                          />
+                        )}
+                        
+                        <div 
+                          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          style={{ background: '#ffffff1a' }}
+                        />
+                        
+                        <span className="relative z-10 flex items-center gap-4">
+                          <span 
+                            className="text-white/40 text-sm min-w-[32px]"
+                            style={{ fontFamily: "'Space Mono', monospace" }}
+                          >
+                            {(index + 1).toString().padStart(2, '0')}
+                          </span>
+                          {link.name}
+                        </span>
+                      </div>
+                    </motion.a>
+                  );
+                })}
+              </div>
+
+              {/* Footer decoration */}
+              <div className="px-8 pb-6">
+                <div 
+                  className="h-px w-full"
+                  style={{ background: 'linear-gradient(90deg, transparent, #ffffff1a, transparent)' }}
+                />
+                <div className="flex justify-center mt-6">
+                  <span 
+                    className="text-white/30 text-xs tracking-widest"
+                    style={{ fontFamily: "'Space Mono', monospace" }}
+                  >
+                    NAVIGATION
+                  </span>
+                </div>
+              </div>
+
+              {/* Decorative corner elements */}
+              <div className="absolute -bottom-20 -right-20 w-40 h-40 rounded-full opacity-30 blur-3xl" style={{ background: '#ffffff1a' }} />
+              <div className="absolute -top-20 -left-20 w-40 h-40 rounded-full opacity-30 blur-3xl" style={{ background: '#ffffff1a' }} />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

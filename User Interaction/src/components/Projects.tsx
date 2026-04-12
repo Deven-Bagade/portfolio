@@ -16,7 +16,6 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       tech: ['Flutter', 'Firebase', 'REST APIs'],
       icon: Smartphone,
       gradient: 'from-blue-500 to-cyan-600',
-      bgGradient: 'from-blue-50 to-cyan-50'
     },
     {
       name: 'Mannsparysha',
@@ -30,7 +29,6 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       tech: ['Flutter', 'Firebase', 'AI concepts'],
       icon: MessageSquare,
       gradient: 'from-purple-500 to-pink-600',
-      bgGradient: 'from-purple-50 to-pink-50'
     },
     {
       name: 'LearnVista',
@@ -43,7 +41,6 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       tech: ['Java', 'Servlets', 'JSP', 'JavaScript', 'MySQL'],
       icon: Video,
       gradient: 'from-green-500 to-emerald-600',
-      bgGradient: 'from-green-50 to-emerald-50'
     },
     {
       name: 'Chat Application',
@@ -56,7 +53,6 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       tech: ['Java (Servlets)', 'JSP', 'MySQL', 'Apache Tomcat', 'JavaScript'],
       icon: MessageSquare,
       gradient: 'from-orange-500 to-red-600',
-      bgGradient: 'from-orange-50 to-red-50'
     },
     {
       name: 'Ethnicize',
@@ -70,7 +66,6 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       tech: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'Tailwind CSS', 'JWT'],
       icon: ShoppingCart,
       gradient: 'from-indigo-500 to-blue-600',
-      bgGradient: 'from-indigo-50 to-blue-50'
     },
     {
       name: 'StockSync',
@@ -84,25 +79,55 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       tech: ['Research', 'Innovation', 'Management'],
       icon: Globe,
       gradient: 'from-teal-500 to-cyan-600',
-      bgGradient: 'from-teal-50 to-cyan-50'
     }
   ];
 
   return (
-    <section id="projects" className="py-20 px-4 bg-gradient-to-br from-gray-50 via-white to-purple-50 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
+    <section
+      id="projects"
+      className="relative overflow-hidden py-24 px-4"
+      style={{ background: '#0a0a0a', fontFamily: "'Syne', sans-serif" }}
+    >
+      {/* Fonts */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap"
+      />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      {/* Grid texture overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+      />
+
+      {/* Radial gradients */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 60% 50% at 10% 30%, rgba(255,255,255,0.03) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 45% at 90% 70%, rgba(255,255,255,0.02) 0%, transparent 55%)
+          `,
+        }}
+      />
+
+      <div className="relative z-10 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2
+            className="text-5xl md:text-6xl mb-4 font-black tracking-tight"
+            style={{
+              background: 'linear-gradient(135deg, #ffffff, #a3a3a3)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
             Featured Projects
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-white max-w-2xl mx-auto" style={{ fontFamily: "'Space Mono', monospace" }}>
             A collection of impactful projects showcasing full-stack development, mobile apps, and innovative solutions
           </p>
         </div>
@@ -111,7 +136,7 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
           {projects.map((project, index) => {
             const Icon = project.icon;
             const isHovered = hoveredProject === index;
-            
+
             return (
               <div
                 key={index}
@@ -121,40 +146,46 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
                 className="group relative cursor-pointer"
               >
                 {/* Card */}
-                <div className={`relative h-full bg-white rounded-3xl p-8 border border-gray-200/50 transition-all duration-500 ${
-                  isHovered ? 'shadow-2xl scale-105 -translate-y-2' : 'shadow-xl'
-                }`}>
-                  {/* Gradient Background on Hover */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${project.bgGradient} rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                <div
+                  className={`relative h-full bg-[#111111]/80 backdrop-blur-md rounded-3xl p-8 border transition-all duration-500 ${
+                    isHovered
+                      ? 'border-white/20 shadow-2xl scale-[1.02] -translate-y-2'
+                      : 'border-white/5 shadow-xl'
+                  }`}
+                >
+                  {/* Subtle colorful gradient background on hover */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${project.gradient} rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                  ></div>
 
                   {/* Content */}
                   <div className="relative z-10">
-                    {/* Icon */}
-                    <div className={`w-16 h-16 bg-gradient-to-br ${project.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                    {/* Icon - Uses specific project gradient */}
+                    <div
+                      className={`w-16 h-16 bg-gradient-to-br ${project.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-all duration-500`}
+                    >
                       <Icon className="w-8 h-8 text-white" />
                     </div>
 
                     {/* Title */}
                     <div className="mb-4">
-                      <h3 className="text-2xl text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-2xl font-bold text-white/90 mb-1 group-hover:text-white transition-colors">
                         {project.name}
                       </h3>
                       {project.subtitle && (
-                        <p className={`text-sm bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
-                          {project.subtitle}
-                        </p>
+                        <p className="text-sm text-white/50 font-medium">{project.subtitle}</p>
                       )}
                     </div>
 
                     {/* Description */}
-                    <p className="text-gray-700 mb-6 leading-relaxed">
+                    <p className="text-white/70 mb-6 leading-relaxed">
                       {project.description}
                     </p>
 
                     {/* Features */}
                     <ul className="space-y-2 mb-6">
                       {project.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
+                        <li key={idx} className="flex items-start gap-2 text-sm text-white">
                           <div className={`w-1.5 h-1.5 bg-gradient-to-r ${project.gradient} rounded-full mt-1.5 flex-shrink-0`}></div>
                           <span>{feature}</span>
                         </li>
@@ -162,13 +193,13 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
                     </ul>
 
                     {/* Tech Stack */}
-                    <div className="pt-6 border-t border-gray-200/50">
-                      <p className="text-xs text-gray-500 mb-3">Tech Stack:</p>
+                    <div className="pt-6 border-t border-white/10 group-hover:border-white/20 transition-colors">
+                      <p className="text-xs text-white/50 mb-3 font-medium uppercase tracking-wider">Tech Stack</p>
                       <div className="flex flex-wrap gap-2">
                         {project.tech.map((tech) => (
                           <span
                             key={tech}
-                            className={`px-3 py-1 bg-gradient-to-r ${project.bgGradient} rounded-lg text-xs border border-gray-200/50 group-hover:border-gray-300 transition-colors`}
+                            className="px-3 py-1 bg-white/5 text-white/70 rounded-lg text-xs border border-white/10 group-hover:border-white/20 group-hover:bg-white/10 transition-colors"
                           >
                             {tech}
                           </span>
@@ -178,44 +209,63 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
                   </div>
 
                   {/* Hover Overlay with Actions */}
-                  <div className={`absolute top-4 right-4 flex gap-2 transition-all duration-300 ${
-                    isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                  }`}>
-                    <button className={`w-10 h-10 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}>
+                  <div
+                    className={`absolute top-4 right-4 flex gap-2 transition-all duration-300 ${
+                      isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                    }`}
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the card click
+                        // Add live link logic here if needed
+                      }}
+                      className={`w-10 h-10 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}
+                    >
                       <ExternalLink className="w-5 h-5 text-white" />
                     </button>
-                    <button className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the card click
+                        // Add GitHub link logic here if needed
+                      }}
+                      className="w-10 h-10 bg-[#222] rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform hover:bg-[#333] border border-white/10"
+                    >
                       <Github className="w-5 h-5 text-white" />
                     </button>
                   </div>
                 </div>
 
-                {/* Glow Effect */}
-                <div className={`absolute -inset-1 bg-gradient-to-r ${project.gradient} rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10`}></div>
+                {/* Glow Effect - Matches project specific gradient */}
+                <div
+                  className={`absolute -inset-1 bg-gradient-to-r ${project.gradient} rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 -z-10`}
+                ></div>
               </div>
             );
           })}
         </div>
 
         {/* CTA */}
-        <div className="mt-16 text-center">
-          <div className="inline-block bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-200/50">
-            <p className="text-gray-700 mb-4">
-              Want to see more projects or collaborate?
-            </p>
-            <a
-              href="https://github.com/Deven-Bagade"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
-            >
-              <Github className="w-5 h-5" />
-              <span>View All on GitHub</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
+        <div className="mt-20 text-center">
+          <div className="inline-block bg-[#111111]/80 backdrop-blur-md rounded-3xl p-10 shadow-2xl border border-white/10 relative overflow-hidden group">
+            {/* Subtle generic background glow for CTA */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            <div className="relative z-10">
+              <p className="text-white/80 mb-6 text-lg">Want to see more projects or collaborate?</p>
+              <a
+                href="https://github.com/Deven-Bagade"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-xl hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:scale-105 transition-all duration-300"
+              >
+                <Github className="w-5 h-5" />
+                <span>View All on GitHub</span>
+                <ExternalLink className="w-4 h-4 opacity-70" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
-}
+} 

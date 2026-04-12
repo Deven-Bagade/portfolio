@@ -1,4 +1,4 @@
-import { ArrowLeft, Github, ExternalLink, Calendar, Users, Code2, Zap, Check, Star, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Github, ExternalLink, Users, Code2, Zap, Check, Star, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 
@@ -221,9 +221,29 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
+    <div className="min-h-screen relative" style={{ background: '#0a0a0a', fontFamily: "'Syne', sans-serif" }}>
+      {/* Grid texture overlay for the whole page */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+      />
+
       {/* Hero Section */}
       <div className={`relative bg-gradient-to-br ${project.gradient} text-white py-20 px-4 overflow-hidden`}>
+        {/* Hero grid overlay (subtle white dots) */}
+        <div
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.08) 1px,transparent 1px)',
+            backgroundSize: '50px 50px',
+          }}
+        />
+
         {/* Animated Background Pattern */}
         <motion.div 
           className="absolute inset-0 opacity-10"
@@ -231,12 +251,13 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
             backgroundPosition: ['0% 0%', '100% 100%'],
           }}
           transition={{ 
-            duration: 20, 
+            duration: 25, 
             repeat: Infinity, 
-            repeatType: 'reverse' 
+            repeatType: 'reverse',
+            ease: 'linear'
           }}
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.5'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             backgroundSize: '60px 60px'
           }}
         />
@@ -257,15 +278,15 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <p className="text-white/80 mb-4">{project.tagline}</p>
-            <h1 className="text-5xl md:text-7xl mb-6">{project.name}</h1>
-            <p className="text-xl text-white/90 max-w-3xl mb-8">
+            <p className="text-white/80 mb-4 tracking-wide">{project.tagline}</p>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">{project.name}</h1>
+            <p className="text-xl text-white/90 max-w-3xl mb-8 leading-relaxed">
               {project.description}
             </p>
 
             <div className="flex flex-wrap gap-4">
               <motion.button 
-                className="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl hover:shadow-2xl transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl hover:shadow-2xl transition-all duration-300 font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -273,7 +294,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                 <span>View Code</span>
               </motion.button>
               <motion.button 
-                className="flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl border border-white/30 hover:bg-white/30 transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -285,8 +306,9 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-16">
+      {/* Main Content - Project Integrated Theme */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-16">
+        
         {/* Key Metrics */}
         <motion.div 
           className="grid md:grid-cols-3 gap-6 mb-16"
@@ -299,17 +321,15 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
             return (
               <motion.div
                 key={index}
-                className="bg-white rounded-2xl p-6 shadow-xl border border-gray-200/50 text-center"
-                whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ duration: 0.3 }}
+                className="bg-[#111111]/80 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/5 hover:border-white/20 transition-colors duration-300 text-center relative overflow-hidden group"
+                whileHover={{ scale: 1.02, y: -5 }}
               >
+                <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
                 <div className={`w-16 h-16 bg-gradient-to-br ${project.gradient} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <div className={`text-4xl bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent mb-2`}>
-                  {metric.value}
-                </div>
-                <div className="text-gray-600">{metric.label}</div>
+                <div className="text-4xl font-bold text-white mb-2">{metric.value}</div>
+                <div className="text-white font-medium tracking-wide">{metric.label}</div>
               </motion.div>
             );
           })}
@@ -322,11 +342,12 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <h2 className="text-4xl mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-6 text-white flex items-center gap-3">
             Project Overview
           </h2>
-          <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200/50">
-            <p className="text-gray-700 leading-relaxed text-lg">
+          <div className="bg-[#111111]/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors duration-300">
+             <div className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${project.gradient}`} />
+            <p className="text-white/70 leading-relaxed text-lg">
               {project.longDescription}
             </p>
           </div>
@@ -339,26 +360,26 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <h2 className="text-4xl mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-8 text-white">
             Key Features
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             {project.features.map((feature, index) => (
               <motion.div
                 key={index}
-                className={`bg-gradient-to-br ${project.bgGradient} rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300`}
+                className="bg-[#111111]/80 backdrop-blur-md rounded-2xl p-6 border border-white/5 hover:border-white/20 transition-all duration-300 group"
                 initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 + index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                  <div className={`w-12 h-12 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Check className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl text-gray-900 mb-2">{feature.title}</h3>
-                    <p className="text-gray-700">{feature.desc}</p>
+                    <h3 className="text-xl font-semibold text-white/90 mb-2">{feature.title}</h3>
+                    <p className="text-white leading-relaxed">{feature.desc}</p>
                   </div>
                 </div>
               </motion.div>
@@ -373,21 +394,21 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <h2 className="text-4xl mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-8 text-white">
             Technology Stack
           </h2>
-          <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200/50">
+          <div className="bg-[#111111]/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/5">
             <div className="flex flex-wrap gap-4">
               {project.tech.map((tech, index) => (
                 <motion.span
                   key={tech}
-                  className={`px-6 py-3 bg-gradient-to-r ${project.bgGradient} rounded-xl border border-gray-300 shadow-sm hover:shadow-lg transition-all`}
+                  className="px-6 py-3 bg-white/5 rounded-xl border border-white/10 text-white/80 shadow-sm hover:bg-white/10 hover:border-white/20 transition-all duration-300 font-medium flex items-center"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.05 }}
-                  whileHover={{ scale: 1.1, rotate: 2 }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  <Code2 className="w-4 h-4 inline mr-2" />
+                  <Code2 className="w-4 h-4 mr-2 opacity-70" />
                   {tech}
                 </motion.span>
               ))}
@@ -402,26 +423,26 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <h2 className="text-4xl mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-8 text-white">
             Development Timeline
           </h2>
-          <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200/50">
+          <div className="bg-[#111111]/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/5">
             <div className="space-y-6">
               {project.timeline.map((phase, index) => (
                 <motion.div
                   key={index}
-                  className="relative flex items-center gap-6"
+                  className="relative flex items-center gap-6 group"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.6 + index * 0.1 }}
                 >
-                  <div className={`w-12 h-12 bg-gradient-to-br ${project.gradient} rounded-full flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                  <div className={`w-12 h-12 bg-gradient-to-br ${project.gradient} rounded-full flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Check className="w-6 h-6 text-white" />
                   </div>
-                  <div className="flex-1 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex-1 bg-white/5 rounded-xl p-4 border border-white/5 group-hover:border-white/20 transition-colors duration-300">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg text-gray-900">{phase.phase}</h3>
-                      <span className={`px-4 py-1 bg-gradient-to-r ${project.gradient} text-white rounded-full text-sm`}>
+                      <h3 className="text-lg font-medium text-white/90">{phase.phase}</h3>
+                      <span className={`px-4 py-1 bg-gradient-to-r ${project.gradient} text-white rounded-full text-sm font-medium shadow-sm`}>
                         {phase.duration}
                       </span>
                     </div>
@@ -439,34 +460,33 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          <h2 className="text-4xl mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-8 text-white">
             Challenges & Solutions
           </h2>
           <div className="space-y-6">
             {project.challenges.map((challenge, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200/50"
+                className="bg-[#111111]/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/5 hover:border-white/10 transition-all duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 + index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <span className="font-bold">!</span>
+                <div className="flex items-start gap-4 mb-5">
+                  <div className="w-10 h-10 bg-red-500/10 text-red-400 rounded-xl flex items-center justify-center flex-shrink-0 border border-red-500/20">
+                    <span className="font-bold text-xl">!</span>
                   </div>
                   <div>
-                    <h3 className="text-xl text-gray-900 mb-2">Challenge: {challenge.problem}</h3>
+                    <h3 className="text-xl font-semibold text-white/90 mb-2 mt-1">Challenge: {challenge.problem}</h3>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 ml-14">
-                  <div className="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Check className="w-5 h-5" />
+                  <div className={`w-10 h-10 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}>
+                    <Check className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-gray-700 mb-2">Solution:</h4>
-                    <p className="text-gray-600">{challenge.solution}</p>
+                    <h4 className="text-white/90 font-medium mb-1 mt-2">Solution:</h4>
+                    <p className="text-white leading-relaxed">{challenge.solution}</p>
                   </div>
                 </div>
               </motion.div>
@@ -476,21 +496,22 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
 
         {/* Call to Action */}
         <motion.div 
-          className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-[2px] shadow-2xl"
+          className={`bg-gradient-to-r ${project.gradient} rounded-3xl p-[2px] shadow-2xl`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <div className="bg-white rounded-3xl p-10 text-center">
-            <h3 className="text-3xl mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="bg-[#0a0a0a] rounded-[22px] p-12 text-center relative overflow-hidden">
+             <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-5`} />
+            <h3 className="text-3xl font-bold mb-4 text-white relative z-10">
               Interested in this project?
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-white mb-8 text-lg relative z-10">
               Let's discuss how similar solutions can benefit your organization
             </p>
             <motion.button
               onClick={onBack}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all"
+              className={`px-8 py-4 bg-gradient-to-r ${project.gradient} text-white font-medium rounded-xl shadow-lg hover:shadow-2xl transition-all relative z-10`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >

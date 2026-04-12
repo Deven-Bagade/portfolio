@@ -20,18 +20,24 @@ const Button = ({ children, className = "", onClick, onMouseEnter, onMouseLeave 
 );
 
 const Card = ({ children, className = "" }) => (
-  <div className={`relative rounded-2xl border border-white/20 bg-black/90 text-white shadow-2xl backdrop-blur-xl overflow-hidden ${className}`}>
-    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-    <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+  <div className={`relative rounded-2xl overflow-hidden ${className}`} style={{
+    border: '1px solid #ffffff',
+    background: 'rgba(10,10,10,0.92)',
+    color: '#ffffff',
+    boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
+    backdropFilter: 'blur(20px)',
+  }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }}></div>
+    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }}></div>
     {children}
   </div>
 );
 
 const CardHeader = ({ children, className = "" }) => <div className={`flex flex-col space-y-1.5 p-6 pb-3 ${className}`}>{children}</div>;
-const CardTitle = ({ children, className = "" }) => <h3 className={`text-xl font-bold leading-tight tracking-tight text-white ${className}`}>{children}</h3>;
+const CardTitle = ({ children, className = "" }) => <h3 className={`text-xl font-bold leading-tight tracking-tight ${className}`} style={{ color: '#ffffff' }}>{children}</h3>;
 const CardContent = ({ children, className = "" }) => <div className={`p-6 pt-2 ${className}`}>{children}</div>;
 
-// --- 2. Timeline Data (unchanged content) ---
+// --- 2. Timeline Data ---
 const timelineData = [
   {
     id: 1,
@@ -75,7 +81,7 @@ const timelineData = [
   },
 ];
 
-// --- 3. The Core Orbital Component (grayscale theme) ---
+// --- 3. The Core Orbital Component ---
 function RadialOrbitalTimeline() {
   const [expandedItems, setExpandedItems] = useState({});
   const [rotationAngle, setRotationAngle] = useState(0);
@@ -83,10 +89,21 @@ function RadialOrbitalTimeline() {
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [pulseEffect, setPulseEffect] = useState({});
   const [activeNodeId, setActiveNodeId] = useState(null);
+  // Store the frozen angle per node so position doesn't jump on hover
+  const [frozenAngles, setFrozenAngles] = useState({});
+  const rotationRef = useRef(rotationAngle);
   const containerRef = useRef(null);
 
   const ORBIT_RADIUS = 150;
-  const CENTER_Y_OFFSET = 220;
+
+  // Keep ref in sync for use inside intervals
+  useEffect(() => {
+    rotationRef.current = rotationAngle;
+  }, [rotationAngle]);
+
+  const getNodeAngle = (index) => {
+    return ((index / timelineData.length) * 360 + rotationAngle) % 360;
+  };
 
   const toggleItem = (id, e) => {
     e?.stopPropagation();
@@ -116,20 +133,39 @@ function RadialOrbitalTimeline() {
     setPulseEffect({});
   };
 
+  // Pause rotation when hovering any node OR orbit area OR active node
+  const shouldPause = isHoveringOrbit || hoveredNodeId !== null || activeNodeId !== null;
+
   useEffect(() => {
-    let timer;
-    if (!isHoveringOrbit && !activeNodeId) {
-      timer = setInterval(() => {
-        setRotationAngle((prev) => (prev + 0.15) % 360);
-      }, 40);
-    }
+    if (shouldPause) return;
+    const timer = setInterval(() => {
+      setRotationAngle((prev) => (prev + 0.15) % 360);
+    }, 40);
     return () => clearInterval(timer);
-  }, [isHoveringOrbit, activeNodeId]);
+  }, [shouldPause]);
+
+  // When a node is hovered, freeze its computed position
+  const handleNodeMouseEnter = (id) => {
+    const index = timelineData.findIndex(i => i.id === id);
+    const angle = getNodeAngle(index);
+    setFrozenAngles(prev => ({ ...prev, [id]: angle }));
+    setHoveredNodeId(id);
+  };
+
+  const handleNodeMouseLeave = (id) => {
+    setHoveredNodeId(null);
+    // Clear the frozen angle so it resumes from live rotation
+    setFrozenAngles(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
 
   let activeX = 0, activeY = 0;
   if (activeNodeId) {
     const activeIndex = timelineData.findIndex(i => i.id === activeNodeId);
-    const angle = ((activeIndex / timelineData.length) * 360 + rotationAngle) % 360;
+    const angle = getNodeAngle(activeIndex);
     activeX = ORBIT_RADIUS * Math.cos((angle * Math.PI) / 180);
     activeY = ORBIT_RADIUS * Math.sin((angle * Math.PI) / 180);
   }
@@ -140,11 +176,14 @@ function RadialOrbitalTimeline() {
       className="w-full h-full min-h-[560px] relative overflow-visible"
       onClick={handleBackgroundClick}
       onMouseEnter={() => setIsHoveringOrbit(true)}
-      onMouseLeave={() => setIsHoveringOrbit(false)}
+      onMouseLeave={() => {
+        setIsHoveringOrbit(false);
+        setHoveredNodeId(null);
+      }}
     >
       <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0 }}>
 
-        {/* Connection line SVG - grayscale */}
+        {/* Connection line SVG */}
         <svg style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
           <defs>
             <linearGradient id="laser" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -157,19 +196,69 @@ function RadialOrbitalTimeline() {
           )}
         </svg>
 
-        {/* Orbital Rings - grayscale */}
-        <div className="rounded-full border border-dashed border-gray-400/30 pointer-events-none" style={{ position: 'absolute', width: ORBIT_RADIUS * 1.3, height: ORBIT_RADIUS * 1.3, top: -(ORBIT_RADIUS * 0.65), left: -(ORBIT_RADIUS * 0.65) }}></div>
-        <div className="rounded-full border border-gray-400/20 pointer-events-none" style={{ position: 'absolute', width: ORBIT_RADIUS * 2, height: ORBIT_RADIUS * 2, top: -ORBIT_RADIUS, left: -ORBIT_RADIUS }}></div>
-        <div className="rounded-full border border-gray-400/12 pointer-events-none" style={{ position: 'absolute', width: ORBIT_RADIUS * 2.8, height: ORBIT_RADIUS * 2.8, top: -(ORBIT_RADIUS * 1.4), left: -(ORBIT_RADIUS * 1.4) }}></div>
+        {/* Orbital Rings */}
+        <div style={{
+          position: 'absolute',
+          width: ORBIT_RADIUS * 1.3,
+          height: ORBIT_RADIUS * 1.3,
+          top: -(ORBIT_RADIUS * 0.65),
+          left: -(ORBIT_RADIUS * 0.65),
+          borderRadius: '50%',
+          border: '1px dashed rgba(156,163,175,0.3)',
+          pointerEvents: 'none',
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          width: ORBIT_RADIUS * 2,
+          height: ORBIT_RADIUS * 2,
+          top: -ORBIT_RADIUS,
+          left: -ORBIT_RADIUS,
+          borderRadius: '50%',
+          border: '1px solid rgba(156,163,175,0.2)',
+          pointerEvents: 'none',
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          width: ORBIT_RADIUS * 2.8,
+          height: ORBIT_RADIUS * 2.8,
+          top: -(ORBIT_RADIUS * 1.4),
+          left: -(ORBIT_RADIUS * 1.4),
+          borderRadius: '50%',
+          border: '1px solid rgba(156,163,175,0.12)',
+          pointerEvents: 'none',
+        }}></div>
 
-        {/* Central Core - grayscale */}
-        <div className="rounded-full bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-[0_0_30px_rgba(128,128,128,0.5)] group cursor-pointer" style={{ position: 'absolute', width: 48, height: 48, top: -24, left: -24 }}>
-          <div className="w-4 h-4 rounded-full bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.8)]"></div>
+        {/* Central Core */}
+        <div style={{
+          position: 'absolute',
+          width: 48,
+          height: 48,
+          top: -24,
+          left: -24,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #6b7280, #374151)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 0 30px rgba(128,128,128,0.5)',
+          cursor: 'pointer',
+        }}>
+          <div style={{
+            width: 16,
+            height: 16,
+            borderRadius: '50%',
+            background: '#ffffff',
+            boxShadow: '0 0 15px rgba(255,255,255,0.8)',
+          }}></div>
         </div>
 
         {/* Orbiting Nodes */}
         {timelineData.map((item, index) => {
-          const angle = ((index / timelineData.length) * 360 + rotationAngle) % 360;
+          // Use frozen angle if this node is hovered (prevents jump), else live angle
+          const angle = (hoveredNodeId === item.id && frozenAngles[item.id] !== undefined)
+            ? frozenAngles[item.id]
+            : getNodeAngle(index);
+
           const radian = (angle * Math.PI) / 180;
           const x = ORBIT_RADIUS * Math.cos(radian);
           const y = ORBIT_RADIUS * Math.sin(radian);
@@ -180,18 +269,43 @@ function RadialOrbitalTimeline() {
           const isHovered = hoveredNodeId === item.id;
           const Icon = item.icon;
 
+          // Node button style computed via explicit colors
+          let nodeBg, nodeBorder, nodeColor, nodeBoxShadow;
+          if (isExpanded) {
+            nodeBg = '#ffffff';
+            nodeBorder = '#ffffff';
+            nodeColor = '#000000';
+            nodeBoxShadow = '0 0 25px rgba(255,255,255,0.5)';
+          } else if (isHovered) {
+            nodeBg = 'rgba(107,114,128,0.4)';
+            nodeBorder = '#d1d5db';
+            nodeColor = '#ffffff';
+            nodeBoxShadow = '0 0 20px rgba(128,128,128,0.4)';
+          } else if (isRelated) {
+            nodeBg = 'rgba(107,114,128,0.4)';
+            nodeBorder = '#d1d5db';
+            nodeColor = '#ffffff';
+            nodeBoxShadow = 'none';
+          } else {
+            nodeBg = 'rgba(10,10,10,0.8)';
+            nodeBorder = 'rgba(255,255,255,0.3)';
+            nodeColor = '#ffffff';
+            nodeBoxShadow = 'none';
+          }
+
           return (
             <div
               key={item.id}
-              className="absolute flex flex-col items-center justify-center transition-all duration-500"
+              className="absolute flex flex-col items-center justify-center"
               style={{
                 left: x,
                 top: y,
                 transform: 'translate(-50%, -50%)',
                 zIndex: isExpanded ? 100 : (isHovered ? 60 : 30),
+                transition: 'left 0.05s linear, top 0.05s linear',
               }}
             >
-              {/* Energy Pulse Ring - grayscale */}
+              {/* Energy Pulse Ring */}
               <AnimatePresence>
                 {(isPulsing || isHovered) && (
                   <motion.div
@@ -199,42 +313,66 @@ function RadialOrbitalTimeline() {
                     animate={{ scale: 1.4, opacity: 0 }}
                     exit={{ scale: 0.8, opacity: 0 }}
                     transition={{ duration: 1, repeat: Infinity }}
-                    className="absolute rounded-full pointer-events-none"
                     style={{
-                      background: `radial-gradient(circle, rgba(128,128,128,0.4) 0%, transparent 70%)`,
+                      position: 'absolute',
+                      borderRadius: '50%',
+                      pointerEvents: 'none',
+                      background: 'radial-gradient(circle, rgba(128,128,128,0.4) 0%, transparent 70%)',
                       width: item.energy + 40,
                       height: item.energy + 40,
-                      top: '50%', left: '50%', transform: 'translate(-50%, -50%)'
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
                     }}
                   />
                 )}
               </AnimatePresence>
 
-              {/* Node Icon - grayscale */}
+              {/* Node Icon Button */}
               <motion.button
-                className={`relative w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 outline-none cursor-pointer
-                  ${isExpanded ? "bg-white text-black border-white shadow-[0_0_25px_rgba(255,255,255,0.5)]"
-                    : isHovered ? "bg-gray-500/40 text-white border-gray-300 shadow-[0_0_20px_rgba(128,128,128,0.4)]"
-                    : isRelated ? "bg-gray-500/40 text-white border-gray-300"
-                    : "bg-black/80 text-white/90 border-white/30 hover:border-gray-400/70 hover:bg-gray-500/20"}
-                `}
+                style={{
+                  position: 'relative',
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: `2px solid ${nodeBorder}`,
+                  background: nodeBg,
+                  color: nodeColor,
+                  boxShadow: nodeBoxShadow,
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'background 0.3s, border-color 0.3s, box-shadow 0.3s',
+                }}
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={(e) => toggleItem(item.id, e)}
-                onMouseEnter={() => setHoveredNodeId(item.id)}
-                onMouseLeave={() => setHoveredNodeId(null)}
+                onMouseEnter={() => handleNodeMouseEnter(item.id)}
+                onMouseLeave={() => handleNodeMouseLeave(item.id)}
               >
                 <Icon size={22} strokeWidth={isExpanded ? 2.5 : 2} />
               </motion.button>
 
               {/* Node Label */}
               <motion.div
-                className={`absolute px-3 py-1.5 rounded-full border backdrop-blur-sm whitespace-nowrap font-mono font-bold tracking-wider pointer-events-none text-sm
-                  ${isExpanded || isHovered
-                    ? "bg-white/20 text-white border-white/30"
-                    : "bg-black/80 text-white border-white/30"}
-                `}
-                style={{ top: 50 }}
+                style={{
+                  position: 'absolute',
+                  top: 50,
+                  padding: '6px 12px',
+                  borderRadius: 9999,
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  backdropFilter: 'blur(8px)',
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  fontSize: '0.875rem',
+                  pointerEvents: 'none',
+                  background: isExpanded || isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(10,10,10,0.8)',
+                  color: '#ffffff',
+                }}
                 animate={{ opacity: 1 }}
               >
                 {item.title}
@@ -255,65 +393,84 @@ function RadialOrbitalTimeline() {
                       transform: 'translateX(-50%)',
                       marginTop: '20px',
                       width: '360px',
-                      zIndex: 200
+                      zIndex: 200,
                     }}
                   >
-                    <div className="absolute -top-[8px] left-1/2 -translate-x-1/2 w-[2px] h-2 bg-gradient-to-t from-white/50 to-transparent"></div>
+                    <div style={{
+                      position: 'absolute',
+                      top: -8,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 2,
+                      height: 8,
+                      background: 'linear-gradient(to top, rgba(255,255,255,0.5), transparent)',
+                    }}></div>
 
-                    <Card className="border-white/30 shadow-2xl">
+                    <Card style={{ borderColor: 'rgba(255,255,255,0.3)' }}>
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleItem(item.id, e); }}
-                        className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors z-10 p-1 rounded-full hover:bg-white/10"
+                        style={{
+                          position: 'absolute',
+                          top: 16,
+                          right: 16,
+                          color: 'rgba(255,255,255,0.7)',
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          zIndex: 10,
+                          padding: 4,
+                          borderRadius: '50%',
+                          transition: 'color 0.2s, background 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.background = 'transparent'; }}
                       >
                         <X size={18} />
                       </button>
 
                       <CardHeader>
-                        <CardTitle className="text-xl pt-1 text-white">{item.title}</CardTitle>
+                        <CardTitle style={{ paddingTop: 4 }}>{item.title}</CardTitle>
                       </CardHeader>
-                      <hr className="border-t border-white/20 mx-6" />  
+                      <hr style={{ borderColor: '#ffffff', margin: '0 24px' }} />
 
                       <CardContent>
-                        <p className="text-base text-white/90 leading-relaxed font-medium">{item.content}</p>
-
-                        {/* Proficiency bar (commented out but kept grayscale ready) */}
-                        {/* 
-                        <div className="mt-5 pt-3 border-t border-white/20">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="flex items-center text-sm font-mono tracking-wider text-white/80">
-                              <Zap size={14} className="mr-1.5 text-gray-300" /> PROFICIENCY
-                            </span>
-                            <span className="text-base text-white font-mono font-bold">{item.energy}%</span>
-                          </div>
-                          <div className="w-full h-2 bg-black/60 rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full bg-gradient-to-r from-gray-400 to-gray-600 rounded-full"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${item.energy}%` }}
-                              transition={{ duration: 0.5, delay: 0.1 }}
-                            />
-                          </div>
-                        </div>
-                        */}
+                        <p style={{ fontSize: '1rem', color: '#ffffff', lineHeight: 1.6, fontWeight: 500 }}>{item.content}</p>
 
                         {item.relatedIds.length > 0 && (
-                          <div className="mt-5 pt-3 border-t border-white/20">
-                            <div className="flex items-center mb-3">
-                              <LinkIcon size={14} className="text-white/60 mr-2" />
-                              <h4 className="text-sm uppercase tracking-widest font-bold text-white/80">Connected Skills</h4>
+                          <div style={{ marginTop: 20, paddingTop: 12, borderTop: '1px solid #ffffff' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+                              <LinkIcon size={14} style={{ color: '#ffffff', marginRight: 8 }} />
+                              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>
+                                Connected Skills
+                              </h4>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                               {item.relatedIds.map((relId) => {
                                 const relItem = timelineData.find((i) => i.id === relId);
                                 return (
-                                  <Button
+                                  <button
                                     key={relId}
                                     onClick={(e) => { e.stopPropagation(); toggleItem(relId, e); }}
-                                    className="h-8 px-3 border border-white/30 bg-white/10 hover:bg-gray-500/30 hover:border-gray-400/60 text-sm text-white/90 font-mono group transition-all"
+                                    style={{
+                                      height: 32,
+                                      padding: '0 12px',
+                                      border: '1px solid rgba(255,255,255,0.3)',
+                                      background: 'rgba(255,255,255,0.1)',
+                                      color: '#ffffff',
+                                      fontSize: '0.875rem',
+                                      fontFamily: 'monospace',
+                                      borderRadius: 8,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      transition: 'background 0.2s, border-color 0.2s',
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(107,114,128,0.3)'; e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
                                   >
                                     {relItem?.title}
-                                    <ArrowRight size={12} className="ml-1.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                                  </Button>
+                                    <ArrowRight size={12} style={{ marginLeft: 6, opacity: 0.5 }} />
+                                  </button>
                                 );
                               })}
                             </div>
@@ -332,7 +489,7 @@ function RadialOrbitalTimeline() {
   );
 }
 
-// --- 4. Main Hero Wrapper (grayscale theme) ---
+// --- 4. Main Hero Wrapper ---
 export function Hero() {
   const reduceMotion = useReducedMotion();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -359,11 +516,16 @@ export function Hero() {
     >
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" />
 
-      {/* Background Effects - grayscale */}
-      <div className="pointer-events-none absolute inset-0 z-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(128,128,128,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(64,64,64,0.06) 0%, transparent 50%)' }} />
-      <div className="pointer-events-none absolute inset-0 z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+      {/* Background Effects */}
+      <div className="pointer-events-none absolute inset-0 z-0" style={{
+        backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(128,128,128,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(64,64,64,0.06) 0%, transparent 50%)'
+      }} />
+      <div className="pointer-events-none absolute inset-0 z-0" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+        backgroundSize: '50px 50px'
+      }} />
 
-      {/* Animated Gradient Orbs - grayscale */}
+      {/* Animated Gradient Orbs */}
       {!reduceMotion && (
         <>
           <motion.div
@@ -389,26 +551,44 @@ export function Hero() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             className="text-center lg:text-left px-4 lg:px-0"
           >
-            {/* Available badge - grayscale */}
-            <div className="inline-flex items-center gap-2 px-6 py-3 mb-10 rounded-full border border-gray-400/30 bg-gray-400/10 backdrop-blur-sm">
-              <span className="relative flex h-3 w-3">
-                <span className="absolute inset-0 rounded-full bg-gray-400 animate-ping opacity-75" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-gray-400" />
+            {/* Available badge */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '12px 24px',
+              marginBottom: 40,
+              borderRadius: 9999,
+              border: '1px solid rgba(156,163,175,0.3)',
+              background: 'rgba(156,163,175,0.1)',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <span style={{ position: 'relative', display: 'flex', width: 12, height: 12 }}>
+                <span style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '50%',
+                  background: '#9ca3af',
+                  animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite',
+                  opacity: 0.75,
+                }} />
+                <span style={{ position: 'relative', display: 'inline-flex', width: 12, height: 12, borderRadius: '50%', background: '#9ca3af' }} />
               </span>
-             <span className="text-base font-mono text-white uppercase tracking-wider">
-  <Sparkles className="inline w-5 h-5 mr-1.5 text-cyan-300" /> Available for opportunities
-</span>
+              <span style={{ fontSize: '1rem', fontFamily: 'monospace', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <Sparkles style={{ display: 'inline', width: 20, height: 20, marginRight: 6, color: '#67e8f9', verticalAlign: 'middle' }} />
+                Available for opportunities
+              </span>
             </div>
 
-            {/* Name - grayscale gradient */}
-            <h1 className="text-7xl md:text-8xl lg:text-8xl xl:text-9xl font-black tracking-tighter mb-6 leading-[1.1]">
-              <span className="bg-gradient-to-r from-gray-300 via-white to-gray-500 bg-clip-text text-transparent">
+            {/* Name */}
+            <h1 style={{ fontSize: 'clamp(4rem, 8vw, 7rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: 24, lineHeight: 1.1 }}>
+              <span style={{ background: 'linear-gradient(90deg, #d1d5db, #ffffff, #6b7280)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Deven Bagade
               </span>
             </h1>
 
             {/* Animated title */}
-            <div className="h-20 mb-5">
+            <div style={{ height: 80, marginBottom: 20 }}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentTitle}
@@ -416,7 +596,7 @@ export function Hero() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.4 }}
-                  className="text-3xl md:text-4xl font-semibold text-white/90"
+                  style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 600, color: '#ffffff' }}
                 >
                   {titles[currentTitle]}
                 </motion.div>
@@ -424,41 +604,86 @@ export function Hero() {
             </div>
 
             {/* Bio paragraph */}
-            <p className="text-xl md:text-2xl text-white/80 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-10">
-              B.Tech IT student with <span className="text-gray-300 font-semibold">9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
+            <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', color: 'rgba(255,255,255,0.8)', maxWidth: 560, marginBottom: 40, lineHeight: 1.7 }}>
+              B.Tech IT student with{' '}
+              <span style={{ color: '#d1d5db', fontWeight: 600 }}>9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
             </p>
 
-            {/* Contact Info - grayscale */}
-            <div className="flex flex-nowrap justify-center lg:justify-start gap-4 mb-10 overflow-x-auto pb-2">
-              <a href="tel:+918369183414" className="flex items-center gap-2.5 px-6 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm text-white/90 hover:text-white hover:border-gray-400/60 transition-all duration-300 group whitespace-nowrap">
-                <Phone className="w-5 h-5 text-gray-300 group-hover:scale-110 transition-transform" />
-                <span className="text-m font-mono">+91 8369183414</span>
-              </a>
-              <a href="mailto:devenbofficial@gmail.com" className="flex items-center gap-2.5 px-6 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm text-white/90 hover:text-white hover:border-gray-400/60 transition-all duration-300 group whitespace-nowrap">
-                <Mail className="w-5 h-5 text-gray-300 group-hover:scale-110 transition-transform" />
-                <span className="text-m font-mono">devenbofficial@gmail.com</span>
-              </a>
-              <div className="flex items-center gap-2.5 px-6 py-3 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm text-white/90 whitespace-nowrap">
-                <MapPin className="w-5 h-5 text-gray-300" />
-                <span className="text-m font-mono">Kalyan, MH</span>
+            {/* Contact Info */}
+            <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'flex-start', gap: 16, marginBottom: 40, overflowX: 'auto', paddingBottom: 8 }}>
+              {[
+                { href: 'tel:+918369183414', icon: Phone, label: '+91 8369183414' },
+                { href: 'mailto:devenbofficial@gmail.com', icon: Mail, label: 'devenbofficial@gmail.com' },
+              ].map(({ href, icon: Icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '12px 24px',
+                    borderRadius: 12,
+                    border: '1px solid #ffffff',
+                    background: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#ffffff',
+                    textDecoration: 'none',
+                    fontFamily: 'monospace',
+                    fontSize: '0.9rem',
+                    whiteSpace: 'nowrap',
+                    transition: 'border-color 0.3s, background 0.3s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                >
+                  <Icon style={{ width: 20, height: 20, color: '#d1d5db' }} />
+                  {label}
+                </a>
+              ))}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '12px 24px',
+                borderRadius: 12,
+                border: '1px solid #ffffff',
+                background: 'rgba(255,255,255,0.1)',
+                color: '#ffffff',
+                fontFamily: 'monospace',
+                fontSize: '0.9rem',
+                whiteSpace: 'nowrap',
+              }}>
+                <MapPin style={{ width: 20, height: 20, color: '#d1d5db' }} />
+                Kalyan, MH
               </div>
             </div>
 
-            {/* CTA Buttons - grayscale */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-6 mt-4">
+            {/* CTA Buttons */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 16 }}>
               <motion.a
                 href="https://github.com/Deven-Bagade"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ y: -3, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="group relative flex items-center gap-3 px-8 py-4 bg-white text-black rounded-xl font-bold overflow-hidden shadow-lg text-base md:text-lg"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '16px 32px',
+                  background: '#ffffff',
+                  color: '#000000',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
               >
-                <span className="relative z-10 flex items-center gap-2.5">
-                  <Github className="w-5 h-5 md:w-6 md:h-6" /> GitHub
-                </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-gray-500 to-gray-700 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                <span className="absolute inset-0 bg-white translate-y-0 group-hover:translate-y-full transition-transform duration-300" />
+                <Github style={{ width: 22, height: 22 }} /> GitHub
               </motion.a>
 
               <motion.a
@@ -467,18 +692,46 @@ export function Hero() {
                 rel="noopener noreferrer"
                 whileHover={{ y: -3, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-800 text-white rounded-xl font-bold shadow-lg hover:shadow-gray-500/30 transition-all duration-300 text-base md:text-lg"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '16px 32px',
+                  background: 'linear-gradient(135deg, #4b5563, #1f2937)',
+                  color: '#ffffff',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                }}
               >
-                <Linkedin className="w-5 h-5 md:w-6 md:h-6" /> LinkedIn
+                <Linkedin style={{ width: 22, height: 22 }} /> LinkedIn
               </motion.a>
 
               <motion.a
                 href="#contact"
                 whileHover={{ y: -3, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-3 px-8 py-4 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-xl font-bold hover:bg-white/20 transition-all duration-300 text-base md:text-lg"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '16px 32px',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  background: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(8px)',
+                  color: '#ffffff',
+                  borderRadius: 12,
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  transition: 'background 0.3s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
               >
-                Hire Me <ArrowDown className="w-5 h-5 md:w-6 md:h-6 ml-1" />
+                Hire Me <ArrowDown style={{ width: 22, height: 22 }} />
               </motion.a>
             </div>
           </motion.div>
@@ -498,13 +751,24 @@ export function Hero() {
 
       {/* Scroll Indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 cursor-pointer"
+        style={{
+          position: 'absolute',
+          bottom: 32,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+        }}
         animate={reduceMotion ? {} : { y: [0, 8, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
       >
-        <span className="text-base font-mono uppercase tracking-wider text-white/70">Scroll</span>
-        <ArrowDown className="w-6 h-6 text-white/70" />
+        <span style={{ fontSize: '0.875rem', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)' }}>Scroll</span>
+        <ArrowDown style={{ width: 24, height: 24, color: 'rgba(255,255,255,0.7)' }} />
       </motion.div>
     </section>
   );
