@@ -1,6 +1,6 @@
 import { Mail, Phone, MapPin, Github, Linkedin, Send, ArrowUpRight, Sparkles, Terminal } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion} from 'framer-motion';
 
 // ── Easing ────────────────────────────────────────────────────────────────────
 const EASE_IN  = [0.22, 1, 0.36, 1];
@@ -177,6 +177,29 @@ function AnimBorderCard({ children, style = {} }: { children: React.ReactNode; s
         {children}
       </div>
     </div>
+  );
+}
+
+function PaperPlane() {
+  return (
+    <>
+      <style>{`
+        @keyframes fly {
+          0%   { transform: translate(0,0) rotate(0deg) scale(1); }
+          28%  { transform: translate(18px,-20px) rotate(-30deg) scale(0.85); }
+          65%  { transform: translate(-5px,7px) rotate(12deg) scale(1.1); }
+          100% { transform: translate(0,0) rotate(0deg) scale(1); }
+        }
+        .paper-plane {
+          animation: fly 3.5s cubic-bezier(0.34,1.56,0.64,1) infinite;
+          animation-delay: 0.5s;
+          display: flex;
+        }
+      `}</style>
+      <span className="paper-plane">
+        <Send size={20} color="#e2e8f0" />
+      </span>
+    </>
   );
 }
 
@@ -476,86 +499,60 @@ export function Contact() {
               </div>
             </div>
 
-{/* CTA button */}
-<motion.a
-  href="mailto:devenbofficial@gmail.com"
-  whileHover={{ scale: 1.05, y: -4 }}
-  whileTap={{ scale: 0.97 }}
-  style={{
-    display: 'inline-flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: '24px 32px',
-    borderRadius: 20,
-    flexShrink: 0,
-    background: 'linear-gradient(135deg, #334155, #1e293b)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    boxShadow: '0 16px 40px rgba(0,0,0,0.6)',
-    textDecoration: 'none',
-    cursor: 'pointer',
-    minWidth: 130,
-  }}
->
-  <div
-    style={{
-      width: 48,
-      height: 48,
-      borderRadius: 14,
-      background: 'linear-gradient(135deg, #475569, #0f172a)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
-      border: '1px solid rgba(255,255,255,0.1)',
-      overflow: 'visible',
-      position: 'relative',
-    }}
-  >
-    {!reduceMotion ? (
-      <motion.div
-        style={{
-          display: 'flex',
-          willChange: 'transform',
-        }}
-        animate={{
-          transform: [
-            'translate(0px, 0px) rotate(0deg) scale(1)',
-            'translate(20px, -22px) rotate(-25deg) scale(0.85)',
-            'translate(-8px, 10px) rotate(15deg) scale(1.1)',
-            'translate(0px, 0px) rotate(0deg) scale(1)',
-          ],
-        }}
-        transition={{
-          duration: 3.5,
-          repeat: Infinity,
-          ease: [0.34, 1.56, 0.64, 1],
-          times: [0, 0.25, 0.65, 1],
-          repeatDelay: 1.5,
-        }}
-      >
-        <Send size={20} color="#e2e8f0" />
-      </motion.div>
-    ) : (
-      <Send size={20} color="#e2e8f0" />
-    )}
-  </div>
-  <span style={{ fontSize: 13, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>
-    Send Message
-  </span>
-  <span
-    style={{
-      fontFamily: "'Space Mono', monospace",
-      fontSize: 9,
-      color: '#475569',
-      letterSpacing: '0.1em',
-      textTransform: 'uppercase',
-    }}
-  >
-    24hr reply
-  </span>
-</motion.a>
+            {/* CTA button */}
+            <motion.a
+              href="mailto:devenbofficial@gmail.com"
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                display: 'inline-flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '24px 32px',
+                borderRadius: 20,
+                flexShrink: 0,
+                background: 'linear-gradient(135deg, #334155, #1e293b)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.6)',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                minWidth: 130,
+              }}
+            >
+              <div
+                // style={{
+                //   width: 48,
+                //   height: 48,
+                //   borderRadius: 14,
+                //   background: 'linear-gradient(135deg, #475569, #0f172a)',
+                //   display: 'flex',
+                //   alignItems: 'center',
+                //   justifyContent: 'center',
+                //   boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
+                //   border: '1px solid rgba(255,255,255,0.1)',
+                //   overflow: 'visible',
+                //   position: 'relative',
+                // }}
+              >
+                <PaperPlane />
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>
+                Send Message
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: 9,
+                  color: '#475569',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                24hr reply
+              </span>
+            </motion.a>
           </div>
         </motion.div>
 
