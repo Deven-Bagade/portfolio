@@ -62,7 +62,7 @@ function Typewriter({ lines }: { lines: string[] }) {
   }, [isInView, charIdx, deleting, lineIdx, lines]);
 
   return (
-    <span ref={ref} style={{ color: '#e2e8f0', fontFamily: "'Space Mono', monospace" }}>
+    <span ref={ref} style={{ color: '#e2e8f0', fontFamily: "'DM Mono', monospace" }}>
       {displayed}
       <motion.span
         animate={{ opacity: [1, 0] }}
@@ -214,7 +214,7 @@ export function Contact() {
   ];
 
   const socialLinks = [
-    { icon: Github,   title: 'GitHub',   sub: 'Deven-Bagade',            href: 'https://github.com/Deven-Bagade',                          tag: 'CODE' },
+    { icon: Github,   title: 'GitHub',   sub: 'Deven-Bagade',            href: 'https://github.com/Deven-Bagade',                           tag: 'CODE' },
     { icon: Linkedin, title: 'LinkedIn', sub: 'deven-bagade-5b092b2b3',  href: 'https://www.linkedin.com/in/deven-bagade-5b092b2b3',        tag: 'NETWORK' },
   ];
 
@@ -225,10 +225,10 @@ export function Contact() {
         position: 'relative', overflow: 'hidden',
         padding: '112px 24px 64px',
         background: '#080808',
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: "'Outfit', sans-serif", // Base Body text font
       }}
     >
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800;900&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
 
       {/* ── Background grid ── */}
       <div style={{
@@ -281,12 +281,12 @@ export function Contact() {
             marginBottom: 20,
           }}>
             <Terminal size={13} color="#94a3b8" />
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, letterSpacing: '0.16em', color: '#94a3b8', textTransform: 'uppercase' }}>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.16em', color: '#94a3b8', textTransform: 'uppercase' }}>
               Let's Connect
             </span>
           </div>
 
-          <h2 style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, marginBottom: 20 }}>
             <GlitchText text="Get In Touch" />
           </h2>
 
@@ -298,7 +298,7 @@ export function Contact() {
             background: 'rgba(10,10,10,0.8)',
             backdropFilter: 'blur(12px)',
             marginBottom: 24,
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: "'DM Mono', monospace",
             fontSize: 13,
           }}>
             <span style={{ color: '#475569' }}>$ </span>
@@ -310,7 +310,7 @@ export function Contact() {
             ]} />
           </div>
 
-          <p style={{ maxWidth: 480, margin: '0 auto', color: 'rgba(255,255,255,0.45)', fontFamily: "'Space Mono', monospace", fontSize: 12, lineHeight: 1.9, letterSpacing: '0.02em' }}>
+          <p style={{ maxWidth: 480, margin: '0 auto', color: 'rgba(255,255,255,0.45)', fontFamily: "'Outfit', sans-serif", fontSize: 14, lineHeight: 1.9, letterSpacing: '0.02em' }}>
             Currently open to opportunities. Reach out — I respond within 24 hours.
           </p>
         </motion.div>
@@ -347,7 +347,7 @@ export function Contact() {
                     <Icon size={20} color="#94a3b8" />
                   </div>
                   <span style={{
-                    fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.14em',
+                    fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.14em',
                     textTransform: 'uppercase', color: '#64748b',
                     border: '1px solid rgba(255,255,255,0.07)',
                     padding: '3px 8px', borderRadius: 6,
@@ -355,7 +355,7 @@ export function Contact() {
                   }}>{m.tag}</span>
                 </div>
 
-                <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: '#475569', textTransform: 'uppercase', marginBottom: 6 }}>{m.title}</p>
+                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: '#475569', textTransform: 'uppercase', marginBottom: 6 }}>{m.title}</p>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#e2e8f0', margin: 0, wordBreak: 'break-all', lineHeight: 1.4 }}>{m.value}</p>
 
                 {m.href && (
@@ -418,10 +418,10 @@ export function Contact() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{s.title}</h3>
-                            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#64748b', border: '1px solid rgba(255,255,255,0.07)', padding: '2px 7px', borderRadius: 5, background: 'rgba(255,255,255,0.03)' }}>{s.tag}</span>
+                            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{s.title}</h3>
+                            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#64748b', border: '1px solid rgba(255,255,255,0.07)', padding: '2px 7px', borderRadius: 5, background: 'rgba(255,255,255,0.03)' }}>{s.tag}</span>
                           </div>
-                          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: '#475569', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.sub}</p>
+                          <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: '#475569', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.sub}</p>
                         </div>
                         <ArrowUpRight size={18} color="#334155" />
                       </div>
@@ -471,10 +471,11 @@ export function Contact() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <Sparkles size={16} color="#94a3b8" />
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, letterSpacing: '0.16em', color: '#64748b', textTransform: 'uppercase' }}>Open to Work</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.16em', color: '#64748b', textTransform: 'uppercase' }}>Open to Work</span>
               </div>
 
               <h3 style={{
+                fontFamily: "'Cormorant Garamond', serif",
                 fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, letterSpacing: '-0.03em',
                 margin: '0 0 12px',
                 background: 'linear-gradient(90deg, #f1f5f9, #94a3b8)',
@@ -491,7 +492,7 @@ export function Contact() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {['Internship', 'Full-time', 'Freelance', 'Open Source'].map((tag) => (
                   <span key={tag} style={{
-                    fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase',
+                    fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase',
                     color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.08)', padding: '4px 10px', borderRadius: 7,
                   }}>{tag}</span>
@@ -521,21 +522,7 @@ export function Contact() {
                 minWidth: 130,
               }}
             >
-              <div
-                // style={{
-                //   width: 48,
-                //   height: 48,
-                //   borderRadius: 14,
-                //   background: 'linear-gradient(135deg, #475569, #0f172a)',
-                //   display: 'flex',
-                //   alignItems: 'center',
-                //   justifyContent: 'center',
-                //   boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
-                //   border: '1px solid rgba(255,255,255,0.1)',
-                //   overflow: 'visible',
-                //   position: 'relative',
-                // }}
-              >
+              <div>
                 <PaperPlane />
               </div>
               <span style={{ fontSize: 13, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>
@@ -543,7 +530,7 @@ export function Contact() {
               </span>
               <span
                 style={{
-                  fontFamily: "'Space Mono', monospace",
+                  fontFamily: "'DM Mono', monospace",
                   fontSize: 9,
                   color: '#475569',
                   letterSpacing: '0.1em',
@@ -574,8 +561,8 @@ export function Contact() {
               />
               <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: '#94a3b8', display: 'inline-flex' }} />
             </span>
-            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, letterSpacing: '0.06em' }}>
-              © 2025 Deven Bagade · Kalyan, Maharashtra
+            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, letterSpacing: '0.06em' }}>
+              © 2026 Deven Bagade · Kalyan, Maharashtra
             </p>
           </div>
         </motion.div>

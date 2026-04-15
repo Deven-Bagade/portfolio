@@ -98,11 +98,11 @@ export function About() {
         overflow: 'hidden',
         padding: '112px 24px',
         background: '#080808',
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: "'Outfit', sans-serif", // Base body text font
       }}
     >
       {/* ── Google Fonts ── */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800;900&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
 
       {/* ── Background grid ── */}
       <div style={{
@@ -149,12 +149,13 @@ export function About() {
             marginBottom: 20,
           }}>
             <Sparkles size={14} style={{ color: '#94a3b8' }} />
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: '#94a3b8', textTransform: 'uppercase' }}>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: '0.15em', color: '#94a3b8', textTransform: 'uppercase' }}>
               Who I Am
             </span>
           </div>
 
           <h2 style={{
+            fontFamily: "'Cormorant Garamond', serif",
             fontSize: 'clamp(3rem, 6vw, 5rem)',
             fontWeight: 900,
             letterSpacing: '-0.03em',
@@ -171,8 +172,8 @@ export function About() {
             maxWidth: 520,
             margin: '0 auto',
             color: 'rgba(255,255,255,0.5)',
-            fontFamily: "'Space Mono', monospace",
-            fontSize: 13,
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: 15,
             lineHeight: 1.8,
             letterSpacing: '0.02em',
           }}>
@@ -214,8 +215,8 @@ export function About() {
                   <BookOpen size={22} color="#e2e8f0" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Background</h3>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Background</h3>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                     VIT Mumbai · 3rd Year
                   </span>
                 </div>
@@ -223,13 +224,13 @@ export function About() {
 
               <HR />
 
-              <p style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, marginBottom: 14 }}>
+              <p style={{ fontFamily: "'Outfit', sans-serif", color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, marginBottom: 14 }}>
                 I'm a 3rd-year B.Tech Information Technology student at Vidyalankar Institute of Technology,
                 Mumbai, maintaining a{' '}
                 <span style={{ color: '#e2e8f0', fontWeight: 700 }}>9.65 CGPA</span>. My journey in technology has been
                 driven by a passion for creating impactful solutions that bridge the gap between user needs and technical innovation.
               </p>
-              <p style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, margin: 0 }}>
+              <p style={{ fontFamily: "'Outfit', sans-serif", color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, margin: 0 }}>
                 With hands-on experience in full-stack web and mobile app development, I've worked on diverse projects —
                 from mental health support applications to e-commerce platforms — always focusing on scalability, UX, and clean code.
               </p>
@@ -268,10 +269,10 @@ export function About() {
                     }}>
                       <Icon size={18} color={stat.accent} />
                     </div>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: stat.accent, lineHeight: 1, marginBottom: 6, letterSpacing: '-0.02em' }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 900, color: stat.accent, lineHeight: 1, marginBottom: 6, letterSpacing: '-0.02em' }}>
                       <Counter end={stat.value} duration={2} suffix={stat.suffix} decimals={stat.decimals} />
                     </div>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
                       {stat.label}
                     </div>
                   </motion.div>
@@ -323,9 +324,9 @@ export function About() {
 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <h4 style={{ fontSize: 17, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{card.title}</h4>
+                        <h4 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{card.title}</h4>
                         <span style={{
-                          fontFamily: "'Space Mono', monospace",
+                          fontFamily: "'DM Mono', monospace",
                           fontSize: 9,
                           letterSpacing: '0.12em',
                           textTransform: 'uppercase',
@@ -338,7 +339,7 @@ export function About() {
                           {card.tag}
                         </span>
                       </div>
-                      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, margin: 0 }}>{card.body}</p>
+                      <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, margin: 0 }}>{card.body}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -386,6 +387,7 @@ export function About() {
               </div>
               <div>
                 <h3 style={{
+                  fontFamily: "'Cormorant Garamond', serif",
                   fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
                   fontWeight: 900,
                   margin: 0,
@@ -396,7 +398,7 @@ export function About() {
                 }}>
                   Professional Summary
                 </h3>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
                   Open to opportunities
                 </span>
               </div>
@@ -404,7 +406,7 @@ export function About() {
 
             <HR />
 
-            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.68)', lineHeight: 1.85, margin: 0, maxWidth: 820 }}>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, color: 'rgba(255,255,255,0.68)', lineHeight: 1.85, margin: 0, maxWidth: 820 }}>
               B.Tech Information Technology 3rd-year student at Vidyalankar Institute of Technology with a{' '}
               <span style={{ color: '#e2e8f0', fontWeight: 700 }}>9.65 CGPA</span>, experienced in developing{' '}
               <span style={{ color: '#ffffff', fontWeight: 700 }}>full-stack web and mobile applications</span>. Proven ability to
@@ -422,7 +424,7 @@ export function About() {
                   exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.25 } }}
                   viewport={{ once: false, amount: 0.5 }}
                   style={{
-                    fontFamily: "'Space Mono', monospace",
+                    fontFamily: "'DM Mono', monospace", // Swapped Space Mono for DM Mono
                     fontSize: 10,
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',

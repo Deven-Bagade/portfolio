@@ -27,10 +27,6 @@ const ACCENTS = [
   },
 ];
 
-// ── Fonts ──────────────────────────────────────────────────────────────────────
-// Add to index.html / global CSS:
-// @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap');
-
 // ── Data ──────────────────────────────────────────────────────────────────────
 const EXPERIENCES = [
   {
@@ -38,7 +34,7 @@ const EXPERIENCES = [
     company: 'Shiksha Sathi',
     duration: '3 Months',
     location: 'Remote',
-    type: 'Full-stack',
+    type: 'Full Stack',
     description: [
       'Built a MERN stack web application following modular, scalable software engineering practices.',
       'Shipped Google Calendar sync, real-time chat, and 100ms-powered video conferencing end-to-end.',
@@ -50,7 +46,7 @@ const EXPERIENCES = [
     company: 'Vidyalankar Institute of Technology',
     duration: 'Dec 2024 – Feb 2025',
     location: 'Mumbai',
-    type: 'Frontend + Backend',
+    type: 'Full Stack',
     description: [
       'Led frontend and backend development for the Ethnicize project using the MERN stack.',
       'Collaborated with a cross-functional team of 4 in an Agile environment, shipping weekly updates.',
@@ -210,7 +206,7 @@ function CardBody({
         {/* Corner accent number */}
         <div style={{
           position: 'absolute', top: 20, right: 20,
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Cormorant Garamond', serif",
           fontStyle: 'italic',
           fontSize: 56,
           fontWeight: 700,
@@ -246,7 +242,7 @@ function CardBody({
           {/* Title */}
           <Reveal delay={0.15 + index * 0.05}>
             <h3 style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Cormorant Garamond', serif",
               fontSize: 'clamp(1.2rem, 2vw, 1.55rem)',
               fontWeight: 700,
               color: '#f0ece4',
@@ -394,7 +390,7 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
         </div>
 
         <div style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Cormorant Garamond', serif",
           fontStyle: 'italic',
           fontSize: 36,
           fontWeight: 700,
@@ -435,7 +431,7 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
       {/* Fonts */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap"
       />
 
       {/* Dot grid */}
@@ -473,7 +469,7 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
             Career
           </span>
           <h2 style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Cormorant Garamond', serif",
             fontStyle: 'italic',
             fontSize: 'clamp(2.6rem, 5.5vw, 4.2rem)',
             fontWeight: 700,

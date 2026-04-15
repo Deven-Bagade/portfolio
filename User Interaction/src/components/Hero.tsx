@@ -8,24 +8,25 @@ import {
 
 // --- 1. Premium Mini UI Components ---
 const Badge = ({ children, className = "" }) => (
-  <div className={`inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black uppercase tracking-wider ${className}`}>
+  <div className={`inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black uppercase tracking-wider ${className}`} style={{ fontFamily: "'DM Mono', monospace" }}>
     {children}
   </div>
 );
 
 const Button = ({ children, className = "", onClick, onMouseEnter, onMouseLeave }) => (
-  <button onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className={`inline-flex items-center justify-center rounded-lg transition-all duration-300 ${className}`}>
+  <button onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className={`inline-flex items-center justify-center rounded-lg transition-all duration-300 ${className}`} style={{ fontFamily: "'Outfit', sans-serif" }}>
     {children}
   </button>
 );
 
-const Card = ({ children, className = "" }) => (
+const Card = ({ children, className = "", style = {} }) => (
   <div className={`relative rounded-2xl overflow-hidden ${className}`} style={{
     border: '1px solid #ffffff',
     background: 'rgba(10,10,10,0.92)',
     color: '#ffffff',
     boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
     backdropFilter: 'blur(20px)',
+    ...style
   }}>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }}></div>
     <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }}></div>
@@ -34,7 +35,7 @@ const Card = ({ children, className = "" }) => (
 );
 
 const CardHeader = ({ children, className = "" }) => <div className={`flex flex-col space-y-1.5 p-6 pb-3 ${className}`}>{children}</div>;
-const CardTitle = ({ children, className = "" }) => <h3 className={`text-xl font-bold leading-tight tracking-tight ${className}`} style={{ color: '#ffffff' }}>{children}</h3>;
+const CardTitle = ({ children, className = "", style = {} }) => <h3 className={`text-xl font-bold leading-tight tracking-tight ${className}`} style={{ color: '#ffffff', fontFamily: "'Cormorant Garamond', serif", ...style }}>{children}</h3>;
 const CardContent = ({ children, className = "" }) => <div className={`p-6 pt-2 ${className}`}>{children}</div>;
 
 // --- 2. Timeline Data ---
@@ -101,20 +102,17 @@ function RadialOrbitalTimeline() {
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [pulseEffect, setPulseEffect] = useState({});
   const [activeNodeId, setActiveNodeId] = useState(null);
-  // Store the frozen angle per node so position doesn't jump on hover
   const [frozenAngles, setFrozenAngles] = useState({});
 
-  // Refs for smooth tween
-  const rotationRef = useRef(0);          // live angle (not state, avoids re-render lag)
-  const tweenRef = useRef(null);          // active RAF id
-  const autoSpinRef = useRef(null);       // auto-spin RAF id
+  const rotationRef = useRef(0);
+  const tweenRef = useRef(null);
+  const autoSpinRef = useRef(null);
   const isTweeningRef = useRef(false);
   const containerRef = useRef(null);
 
   const ORBIT_RADIUS = 150;
   const TWEEN_DURATION = 700; // ms
 
-  // Keep state in sync with ref for renders
   const syncAngle = (angle) => {
     rotationRef.current = ((angle % 360) + 360) % 360;
     setRotationAngle(rotationRef.current);
@@ -124,7 +122,6 @@ function RadialOrbitalTimeline() {
     return ((index / timelineData.length) * 360 + rotationRef.current) % 360;
   };
 
-  // Smooth tween to targetAngle using RAF
   const tweenToAngle = (targetAngle) => {
     if (tweenRef.current) cancelAnimationFrame(tweenRef.current);
     if (autoSpinRef.current) cancelAnimationFrame(autoSpinRef.current);
@@ -157,7 +154,7 @@ function RadialOrbitalTimeline() {
       const newState = { [id]: isOpening };
       if (isOpening) {
         setActiveNodeId(id);
-        setFrozenAngles({});        // clear any frozen angles on open
+        setFrozenAngles({});
         const related = timelineData.find(item => item.id === id)?.relatedIds || [];
         const newPulse = {};
         related.forEach(relId => (newPulse[relId] = true));
@@ -183,7 +180,6 @@ function RadialOrbitalTimeline() {
     if (tweenRef.current) { cancelAnimationFrame(tweenRef.current); tweenRef.current = null; }
   };
 
-  // Auto-spin via RAF (smoother than setInterval)
   const shouldPause = isHoveringOrbit || hoveredNodeId !== null || activeNodeId !== null;
 
   useEffect(() => {
@@ -192,7 +188,7 @@ function RadialOrbitalTimeline() {
     const spin = (now) => {
       if (lastTime !== null) {
         const dt = now - lastTime;
-        syncAngle(rotationRef.current + (dt * 0.004)); // ~0.15deg per 40ms equiv
+        syncAngle(rotationRef.current + (dt * 0.004));
       }
       lastTime = now;
       autoSpinRef.current = requestAnimationFrame(spin);
@@ -203,7 +199,6 @@ function RadialOrbitalTimeline() {
     };
   }, [shouldPause]);
 
-  // When a node is hovered, freeze its computed position so it doesn't jump
   const handleNodeMouseEnter = (id) => {
     const index = timelineData.findIndex(i => i.id === id);
     const angle = getNodeAngle(index);
@@ -212,11 +207,9 @@ function RadialOrbitalTimeline() {
   };
 
   const handleNodeMouseLeave = (id) => {
-    // Adjust rotationRef so node stays in the same visual spot after unfreeze
     if (frozenAngles[id] !== undefined) {
       const index = timelineData.findIndex(i => i.id === id);
       const baseAngle = (index / timelineData.length) * 360;
-      // rotationRef.current = frozenAngle - baseAngle  => node resumes from frozen spot
       const correctedRotation = ((frozenAngles[id] - baseAngle) % 360 + 360) % 360;
       rotationRef.current = correctedRotation;
       setRotationAngle(correctedRotation);
@@ -300,9 +293,9 @@ function RadialOrbitalTimeline() {
           position: 'absolute',
           width: 48,
           height: 48,
- top: '50%',
- left: '50%',
- transform: 'translate(-50%, -50%)',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
           background: 'linear-gradient(135deg, #6b7280, #374151)',
           display: 'flex',
@@ -322,7 +315,6 @@ function RadialOrbitalTimeline() {
 
         {/* Orbiting Nodes */}
         {timelineData.map((item, index) => {
-          // Use frozen angle if this node is hovered (prevents jump), else live angle
           const angle = (hoveredNodeId === item.id && frozenAngles[item.id] !== undefined)
             ? frozenAngles[item.id]
             : getNodeAngle(index);
@@ -337,7 +329,6 @@ function RadialOrbitalTimeline() {
           const isHovered = hoveredNodeId === item.id;
           const Icon = item.icon;
 
-          // Node button style computed via explicit colors
           let nodeBg, nodeBorder, nodeColor, nodeBoxShadow;
           if (isExpanded) {
             nodeBg = '#ffffff';
@@ -422,7 +413,7 @@ function RadialOrbitalTimeline() {
                 <Icon size={22} strokeWidth={isExpanded ? 2.5 : 2} />
               </motion.button>
 
-              {/* Node Label */}
+              {/* Node Label (DM Mono for Labels) */}
               <motion.div
                 style={{
                   position: 'absolute',
@@ -432,7 +423,7 @@ function RadialOrbitalTimeline() {
                   border: '1px solid rgba(255,255,255,0.3)',
                   backdropFilter: 'blur(8px)',
                   whiteSpace: 'nowrap',
-                  fontFamily: 'monospace',
+                  fontFamily: "'DM Mono', monospace",
                   fontWeight: 700,
                   letterSpacing: '0.1em',
                   fontSize: '0.875rem',
@@ -501,13 +492,17 @@ function RadialOrbitalTimeline() {
                       <hr style={{ borderColor: '#ffffff', margin: '0 24px' }} />
 
                       <CardContent>
-                        <p style={{ fontSize: '1rem', color: '#ffffff', lineHeight: 1.6, fontWeight: 500 }}>{item.content}</p>
+                        {/* Body text (Outfit) */}
+                        <p style={{ fontSize: '1rem', color: '#ffffff', lineHeight: 1.6, fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>
+                          {item.content}
+                        </p>
 
                         {item.relatedIds.length > 0 && (
                           <div style={{ marginTop: 20, paddingTop: 12, borderTop: '1px solid #ffffff' }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                               <LinkIcon size={14} style={{ color: '#ffffff', marginRight: 8 }} />
-                              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>
+                              {/* Label/Tag font (DM Mono) */}
+                              <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, color: 'rgba(255,255,255,0.8)', fontFamily: "'DM Mono', monospace" }}>
                                 Connected Skills
                               </h4>
                             </div>
@@ -525,7 +520,7 @@ function RadialOrbitalTimeline() {
                                       background: 'rgba(255,255,255,0.1)',
                                       color: '#ffffff',
                                       fontSize: '0.875rem',
-                                      fontFamily: 'monospace',
+                                      fontFamily: "'DM Mono', monospace", // Tags
                                       borderRadius: 8,
                                       cursor: 'pointer',
                                       display: 'inline-flex',
@@ -579,9 +574,11 @@ export function Hero() {
     <section
       id="home"
       className="relative min-h-screen overflow-hidden"
-      style={{ background: '#0a0a0a', fontFamily: "'Syne', sans-serif", padding: '100px 48px' }}
+      // Applied Base Body Font (Outfit) here
+      style={{ background: '#0a0a0a', fontFamily: "'Outfit', sans-serif", padding: '100px 48px' }}
     >
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" />
+      {/* Updated Google Fonts Stylesheet */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
 
       {/* Background Effects */}
       <div className="pointer-events-none absolute inset-0 z-0" style={{
@@ -618,7 +615,7 @@ export function Hero() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             className="text-center lg:text-left px-4 lg:px-0"
           >
-            {/* Available badge */}
+            {/* Available badge (DM Mono for Tags) */}
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -641,20 +638,20 @@ export function Hero() {
                 }} />
                 <span style={{ position: 'relative', display: 'inline-flex', width: 12, height: 12, borderRadius: '50%', background: '#9ca3af' }} />
               </span>
-              <span style={{ fontSize: '1rem', fontFamily: 'monospace', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ fontSize: '1rem', fontFamily: "'DM Mono', monospace", color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 <Sparkles style={{ display: 'inline', width: 20, height: 20, marginRight: 6, color: '#67e8f9', verticalAlign: 'middle' }} />
                 Available for opportunities
               </span>
             </div>
 
-            {/* Name */}
-            <h1 style={{ fontSize: 'clamp(4rem, 8vw, 7rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: 24, lineHeight: 1.1 }}>
+            {/* Name Heading (Cormorant Garamond) */}
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(4rem, 8vw, 7rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: 24, lineHeight: 1.1 }}>
               <span style={{ background: 'linear-gradient(90deg, #d1d5db, #ffffff, #6b7280)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Deven Bagade
               </span>
             </h1>
 
-            {/* Animated title */}
+            {/* Animated Title Heading (Cormorant Garamond) */}
             <div style={{ height: 80, marginBottom: 20 }}>
               <AnimatePresence mode="wait">
                 <motion.div
@@ -663,20 +660,20 @@ export function Hero() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.4 }}
-                  style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 600, color: '#ffffff' }}
+                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 600, color: '#ffffff' }}
                 >
                   {titles[currentTitle]}
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            {/* Bio paragraph */}
-            <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', color: 'rgba(255,255,255,0.8)', maxWidth: 560, marginBottom: 40, lineHeight: 1.7 }}>
+            {/* Bio paragraph (Outfit) */}
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', color: 'rgba(255,255,255,0.8)', maxWidth: 560, marginBottom: 40, lineHeight: 1.7 }}>
               B.Tech IT student with{' '}
               <span style={{ color: '#d1d5db', fontWeight: 600 }}>9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
             </p>
 
-            {/* Contact Info */}
+            {/* Contact Info Tags (DM Mono) */}
             <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'flex-start', gap: 16, marginBottom: 40, overflowX: 'visible', paddingBottom: 8 }}>
               {[
                 { href: 'tel:+918369183414', icon: Phone, label: '+91 8369183414' },
@@ -696,7 +693,7 @@ export function Hero() {
                     backdropFilter: 'blur(8px)',
                     color: '#ffffff',
                     textDecoration: 'none',
-                    fontFamily: 'monospace',
+                    fontFamily: "'DM Mono', monospace", // Label Font
                     fontSize: '0.9rem',
                     whiteSpace: 'nowrap',
                     transition: 'border-color 0.3s, background 0.3s',
@@ -717,7 +714,7 @@ export function Hero() {
                 border: '1px solid #ffffff',
                 background: 'rgba(255,255,255,0.1)',
                 color: '#ffffff',
-                fontFamily: 'monospace',
+                fontFamily: "'DM Mono', monospace", // Label Font
                 fontSize: '0.9rem',
                 whiteSpace: 'nowrap',
               }}>
@@ -726,7 +723,7 @@ export function Hero() {
               </div>
             </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - UI Components (Outfit) */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 16 }}>
               <motion.a
                 href="https://github.com/Deven-Bagade"
@@ -742,6 +739,7 @@ export function Hero() {
                   background: '#ffffff',
                   color: '#000000',
                   borderRadius: 12,
+                  fontFamily: "'Outfit', sans-serif", // UI Button Font
                   fontWeight: 700,
                   fontSize: '1rem',
                   textDecoration: 'none',
@@ -767,6 +765,7 @@ export function Hero() {
                   background: 'linear-gradient(135deg, #4b5563, #1f2937)',
                   color: '#ffffff',
                   borderRadius: 12,
+                  fontFamily: "'Outfit', sans-serif", // UI Button Font
                   fontWeight: 700,
                   fontSize: '1rem',
                   textDecoration: 'none',
@@ -790,6 +789,7 @@ export function Hero() {
                   backdropFilter: 'blur(8px)',
                   color: '#ffffff',
                   borderRadius: 12,
+                  fontFamily: "'Outfit', sans-serif", // UI Button Font
                   fontWeight: 700,
                   fontSize: '1rem',
                   textDecoration: 'none',
@@ -816,7 +816,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator (Outfit for UI) */}
       <motion.div
         style={{
           position: 'absolute',
@@ -834,7 +834,7 @@ export function Hero() {
         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
       >
-        <span style={{ fontSize: '0.875rem', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)' }}>Scroll</span>
+        <span style={{ fontSize: '0.875rem', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)' }}>Scroll</span>
         <ArrowDown style={{ width: 24, height: 24, color: 'rgba(255,255,255,0.7)' }} />
       </motion.div>
     </section>

@@ -1,10 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { Terminal, Layers, Server, Database, Wrench, Sparkles } from 'lucide-react';
-
-// ── Fonts ─────────────────────────────────────────────────────────────────────
-// Add to your global CSS / index.html:
-// @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;500;700&display=swap');
+import { Terminal, Layers, Server, Database, Wrench, Brain, Sparkles } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface TechGroup {
@@ -29,7 +25,7 @@ const TECH_GROUPS: TechGroup[] = [
     color: '#7c6fcd',
     bg: 'rgba(124,111,205,0.08)',
     border: 'rgba(124,111,205,0.22)',
-    tags: ['Java', 'JavaScript', 'C', 'Dart'],
+    tags: ['Java', 'JavaScript', 'Python', 'C', 'Dart'],
   },
   {
     category: 'Frontend & Mobile',
@@ -37,7 +33,7 @@ const TECH_GROUPS: TechGroup[] = [
     color: '#3a8fc7',
     bg: 'rgba(58,143,199,0.08)',
     border: 'rgba(58,143,199,0.22)',
-    tags: ['React', 'Flutter', 'Tailwind CSS', 'Android Studio', 'Java Swing'],
+    tags: ['React.js', 'Flutter', 'Tailwind CSS', 'Android Studio'],
   },
   {
     category: 'Backend & APIs',
@@ -45,23 +41,23 @@ const TECH_GROUPS: TechGroup[] = [
     color: '#2daa84',
     bg: 'rgba(45,170,132,0.08)',
     border: 'rgba(45,170,132,0.22)',
-    tags: ['Node.js', 'Express.js', 'Firebase', 'REST APIs', 'JWT', 'OAuth 2.0', 'Apache Tomcat', '100ms'],
+    tags: ['Node.js', 'Express.js', 'Flask', 'Firebase', 'REST APIs'],
   },
   {
-    category: 'Databases',
-    icon: Database,
+    category: 'AI & Machine Learning',
+    icon: Brain,
     color: '#d4913a',
     bg: 'rgba(212,145,58,0.08)',
     border: 'rgba(212,145,58,0.22)',
-    tags: ['MongoDB', 'MySQL', 'Firestore'],
+    tags: ['LLMs', 'Bayesian Networks', 'OpenCV', 'XGBoost', 'PGM'],
   },
   {
-    category: 'Tooling & Workflow',
+    category: 'DevOps & Tooling',
     icon: Wrench,
     color: '#c96060',
     bg: 'rgba(201,96,96,0.08)',
     border: 'rgba(201,96,96,0.22)',
-    tags: ['Git', 'GitHub', 'Google APIs', 'Agile', 'CI/CD', 'Code Review'],
+    tags: ['Docker', 'Jenkins', 'Selenium', 'CI/CD', 'Git', 'Agile'],
   },
 ];
 
@@ -96,7 +92,7 @@ function Marquee() {
           <span
             key={i}
             style={{
-              fontFamily: "'DM Mono', monospace",
+              fontFamily: "'DM Mono', monospace", // Labels / Tags font
               fontSize: 12,
               padding: '6px 14px',
               borderRadius: 999,
@@ -126,7 +122,7 @@ function Tag({ label, color, bg, border }: { label: string; color: string; bg: s
       animate={{ y: hovered ? -3 : 0, scale: hovered ? 1.04 : 1 }}
       transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       style={{
-        fontFamily: "'DM Mono', monospace",
+        fontFamily: "'DM Mono', monospace", // Labels / Tags font
         fontSize: 12,
         padding: '6px 14px',
         borderRadius: 8,
@@ -184,7 +180,7 @@ function GroupCard({ group, index }: { group: TechGroup; index: number }) {
           <Icon size={15} color={group.color} />
         </div>
         <span style={{
-          fontFamily: "'DM Mono', monospace",
+          fontFamily: "'DM Mono', monospace", // Labels / Tags font
           fontSize: 11,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
@@ -231,7 +227,7 @@ function SoftCard({ skill, index }: { skill: SoftSkill; index: number }) {
     >
       {/* counter */}
       <span style={{
-        fontFamily: "'DM Mono', monospace",
+        fontFamily: "'DM Mono', monospace", // Labels / Tags font
         fontSize: 10,
         color: 'rgba(255,255,255,0.2)',
         letterSpacing: '0.1em',
@@ -242,12 +238,12 @@ function SoftCard({ skill, index }: { skill: SoftSkill; index: number }) {
       </span>
 
       <h4 style={{
-        fontFamily: "'Outfit', sans-serif",
-        fontSize: 15,
-        fontWeight: 500,
+        fontFamily: "'Cormorant Garamond', serif", // Headings / Titles font
+        fontSize: 22,
+        fontWeight: 600,
         color: '#f0f0f0',
         marginBottom: 8,
-        lineHeight: 1.2,
+        lineHeight: 1.1,
       }}>
         {skill.title}
       </h4>
@@ -256,7 +252,7 @@ function SoftCard({ skill, index }: { skill: SoftSkill; index: number }) {
         color: 'rgba(255,255,255,0.45)',
         lineHeight: 1.7,
         margin: 0,
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "'Outfit', sans-serif", // Body text font
         fontWeight: 300,
       }}>
         {skill.blurb}
@@ -276,7 +272,7 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: string
       style={{ textAlign: 'center', marginBottom: 48 }}
     >
       <span style={{
-        fontFamily: "'DM Mono', monospace",
+        fontFamily: "'DM Mono', monospace", // Labels / Tags font
         fontSize: 10,
         letterSpacing: '0.18em',
         textTransform: 'uppercase',
@@ -287,10 +283,9 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: string
         {eyebrow}
       </span>
       <h2 style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontStyle: 'italic',
-        fontSize: 'clamp(2.4rem, 5vw, 4rem)',
-        fontWeight: 400,
+        fontFamily: "'Cormorant Garamond', serif", // Headings / Titles font
+        fontSize: 'clamp(3rem, 6vw, 4.5rem)',
+        fontWeight: 700,
         color: '#f5f5f5',
         letterSpacing: '-0.01em',
         lineHeight: 1.1,
@@ -300,7 +295,7 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: string
       </h2>
       {sub && (
         <p style={{
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: "'Outfit', sans-serif", // Body text font
           fontWeight: 300,
           fontSize: 14,
           color: 'rgba(255,255,255,0.38)',
@@ -326,14 +321,11 @@ export function Skills() {
         overflow: 'hidden',
         padding: '120px 0 100px',
         background: '#080808',
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "'Outfit', sans-serif", // Base Body text font
       }}
     >
-      {/* Google Fonts */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;500;700&display=swap"
-      />
+      {/* ── Google Fonts ── */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
 
       {/* ── Background: fine dot grid ── */}
       <div style={{
