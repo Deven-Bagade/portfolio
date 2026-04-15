@@ -3,7 +3,7 @@ import {
   Star, TrendingUp, ChevronLeft, ChevronRight, Monitor, Layers,
   Clock, Target, ArrowUpRight
 } from 'lucide-react';
-import { motion, useScroll, useTransform, useInView, useAnimationControls } from 'motion/react';
+import { motion, useScroll, useTransform, useInView, useAnimationControls } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 
 interface ProjectDetailProps {
@@ -85,7 +85,7 @@ function ScreenshotPlaceholder({ gradient, index, label }: { gradient: string; i
         background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
         border: '1px solid rgba(255,255,255,0.12)',
         borderRadius: 8, padding: '4px 12px',
-        fontFamily: "'Space Mono', monospace",
+        fontFamily: "'DM Mono', monospace",
         fontSize: 11, color: 'rgba(255,255,255,0.7)',
         letterSpacing: '0.08em', textTransform: 'uppercase',
       }}>{label}</div>
@@ -112,40 +112,40 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
 
   const projects = [
     {
-      name: 'Attendance Tracker',
-      tagline: 'Smart Attendance Management for Students',
-      description: 'A comprehensive personal attendance management application designed specifically for students to track their lecture attendance efficiently. Built with a mobile-first approach using Flutter, it provides an intuitive interface for managing daily attendance with timetable integration.',
-      longDescription: 'Attendance Tracker revolutionizes how students manage their academic attendance. With offline-first architecture, students can mark their attendance even without internet connectivity, ensuring no data loss. The app automatically syncs when connected, providing a seamless experience. The timetable-based tracking system intelligently organizes lectures by day and time, making it incredibly easy to track patterns and maintain attendance records throughout the semester.',
+      name: 'Wisdom',
+      tagline: 'Academic Course Marketplace & CI/CD Platform',
+      description: 'A comprehensive React-based platform for selling academic courses, integrated with a robust Jenkins CI/CD pipeline and Selenium automated testing for seamless deployment.',
+      longDescription: 'Wisdom was built to bridge the gap between academic content creators and students. The platform not only serves as a marketplace for high-quality educational courses but also stands as a testament to modern DevOps practices. By integrating a full Jenkins CI/CD pipeline and automated Selenium tests, the application ensures high reliability and zero-downtime deployments.',
       features: [
-        { title: 'Smart Attendance Marking', desc: 'Mark attendance as Present, Absent, or Late with optional notes for each lecture' },
-        { title: 'Offline-First Architecture', desc: 'Full functionality even without internet connection, with automatic sync when online' },
-        { title: 'Timetable Integration', desc: 'Organize lectures by timetable for easy tracking and visualization' },
-        { title: 'Attendance Analytics', desc: 'View attendance percentage, trends, and patterns over time' },
-        { title: 'Clean Architecture', desc: 'Modular services ensuring maintainability and scalability' },
-        { title: 'Reminder System', desc: 'Smart notifications for upcoming lectures and low attendance warnings' },
+        { title: 'Course Marketplace', desc: 'Browse, purchase, and access academic courses with a seamless user interface.' },
+        { title: 'Automated CI/CD', desc: 'Fully integrated Jenkins pipeline for automated building, testing, and deployment.' },
+        { title: 'Selenium Integration', desc: 'End-to-end automated UI testing to guarantee core functionality before every release.' },
+        { title: 'User Dashboards', desc: 'Dedicated portals for instructors to upload content and students to track progress.' },
+        { title: 'Secure Transactions', desc: 'Integrated payment processing for course purchases.' },
+        { title: 'Responsive Design', desc: 'Optimized viewing experience across all devices.' },
       ],
-      tech: ['Flutter', 'Firebase', 'REST APIs', 'SQLite', 'Provider State Management'],
-      metrics: [{ label: 'Performance', value: '99.9%', icon: Zap }, { label: 'Uptime', value: '100%', icon: TrendingUp }, { label: 'User Rating', value: '4.8/5', icon: Star }],
+      tech: ['React.js', 'Node.js', 'Jenkins', 'Selenium', 'Tailwind CSS', 'Git/GitHub'],
+      metrics: [{ label: 'Test Coverage', value: '95%', icon: Check }, { label: 'Uptime', value: '99.9%', icon: Zap }, { label: 'Build Time', value: '<3m', icon: Clock }],
       timeline: [
-        { phase: 'Planning & Design', duration: '2 weeks', status: 'completed' },
-        { phase: 'Core Development', duration: '4 weeks', status: 'completed' },
-        { phase: 'Testing & Refinement', duration: '2 weeks', status: 'completed' },
-        { phase: 'Deployment', duration: '1 week', status: 'completed' },
+        { phase: 'UI/UX Design & Frontend', duration: '3 weeks', status: 'completed' },
+        { phase: 'Backend API Development', duration: '4 weeks', status: 'completed' },
+        { phase: 'CI/CD Pipeline Setup', duration: '2 weeks', status: 'completed' },
+        { phase: 'E2E Testing & Launch', duration: '2 weeks', status: 'completed' },
       ],
       challenges: [
-        { problem: 'Offline Data Sync', solution: 'Implemented local SQLite database with conflict resolution algorithms for seamless synchronization' },
-        { problem: 'State Management', solution: 'Used Provider pattern for efficient state handling across complex UI components' },
-        { problem: 'Data Persistence', solution: 'Created robust caching mechanism ensuring data integrity across app sessions' },
+        { problem: 'Pipeline Integration', solution: 'Configured Jenkins webhooks with GitHub to trigger automated builds on every push to the main branch.' },
+        { problem: 'UI Test Flakiness', solution: 'Implemented explicit waits and dynamic element locators in Selenium to stabilize automated tests.' },
+        { problem: 'State Management', solution: 'Utilized React Context to manage complex user session and cart data seamlessly.' },
       ],
       gradient: 'from-blue-500 to-cyan-600',
       gradStops: '#3b82f6, #0891b2',
-      screenshots: ['Overview', 'Analytics', 'Timetable'],
+      screenshots: ['Storefront', 'Course Player', 'Jenkins Pipeline'],
     },
     {
-      name: 'Mannsparysha',
+      name: 'MindCare',
       tagline: 'Mental Health Support & Wellness Platform',
       description: 'A privacy-first mental health support application designed to help users manage their emotional well-being through AI-powered chat support, mood tracking, and personalized wellness recommendations.',
-      longDescription: 'Mannsparysha addresses the critical need for accessible mental health support. The app provides a safe, judgment-free space where users can express their feelings, track their moods, and receive personalized support. With AI-powered chat functionality, users get immediate responses and coping strategies tailored to their emotional state. The privacy-first approach ensures all user data is encrypted and never shared, making it a trusted companion for mental wellness.',
+      longDescription: 'MindCare addresses the critical need for accessible mental health support. The app provides a safe, judgment-free space where users can express their feelings, track their moods, and receive personalized support. With AI-powered chat functionality, users get immediate responses and coping strategies tailored to their emotional state. The privacy-first approach ensures all user data is encrypted and never shared.',
       features: [
         { title: 'AI Chat Support', desc: 'Intelligent conversational AI providing empathetic responses and coping strategies' },
         { title: 'Mood Tracking', desc: 'Visual mood journals with patterns and insights over time' },
@@ -154,7 +154,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
         { title: 'Personalized Recommendations', desc: 'AI-driven wellness suggestions based on mood patterns' },
         { title: 'Crisis Resources', desc: 'Quick access to emergency helplines and professional support' },
       ],
-      tech: ['Flutter', 'Firebase', 'AI/ML APIs', 'Natural Language Processing', 'Encryption'],
+      tech: ['React.js', 'Node.js', 'AI/ML APIs', 'Natural Language Processing', 'Encryption'],
       metrics: [{ label: 'User Satisfaction', value: '95%', icon: Star }, { label: 'Daily Active Users', value: '500+', icon: Users }, { label: 'Response Time', value: '<1s', icon: Zap }],
       timeline: [
         { phase: 'Research & UX Design', duration: '3 weeks', status: 'completed' },
@@ -172,64 +172,64 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
       screenshots: ['Home', 'Chat', 'Mood Log'],
     },
     {
-      name: 'LearnVista',
-      tagline: 'Secure Educational Video Platform',
-      description: 'A secure video-sharing platform designed specifically for educational institutions, enabling teachers to share content with students through role-based access control and comprehensive interaction features.',
-      longDescription: 'LearnVista transforms the educational video sharing experience by providing a secure, feature-rich platform tailored for academic environments. Teachers can upload, organize, and share educational content while maintaining complete control over access. Students benefit from advanced search capabilities, personalized collections, and interactive engagement features. The platform ensures data security and user privacy through robust authentication mechanisms.',
+      name: 'Class Vision',
+      tagline: 'Face-Recognition Attendance System',
+      description: 'An automated attendance management system leveraging Python, OpenCV, and Tkinter to track student presence through real-time facial recognition.',
+      longDescription: 'Class Vision eliminates the friction of manual roll calls in educational institutions. By utilizing OpenCV for precise facial detection and recognition, the system automatically logs student attendance as they enter the classroom. A custom Tkinter GUI provides administrators with an easy-to-use interface to manage student databases, train the recognition model, and export attendance reports seamlessly.',
       features: [
-        { title: 'Role-Based Access', desc: 'Separate teacher and student portals with granular permission controls' },
-        { title: 'Advanced Search', desc: 'Smart search with filters for subject, topic, and difficulty level' },
-        { title: 'Video Collections', desc: 'Create playlists, save favorites, and organize content efficiently' },
-        { title: 'Engagement Tracking', desc: 'Analytics on video views, likes, and student engagement patterns' },
-        { title: 'Secure Authentication', desc: 'Multi-factor authentication with session management' },
-        { title: 'Comment System', desc: 'Interactive discussions with moderation capabilities' },
+        { title: 'Facial Recognition', desc: 'Accurate real-time student identification using OpenCV.' },
+        { title: 'Automated Logging', desc: 'Instantly records attendance with timestamps into a secure database.' },
+        { title: 'Admin GUI', desc: 'Intuitive Tkinter interface for managing student data and system settings.' },
+        { title: 'Report Generation', desc: 'Easily export attendance data to CSV or Excel formats for administration.' },
+        { title: 'Model Training', desc: 'Built-in tools to capture and train the system on new student faces.' },
+        { title: 'Liveness Detection', desc: 'Basic anti-spoofing measures to ensure accurate presence tracking.' },
       ],
-      tech: ['Java', 'Servlets', 'JSP', 'JavaScript', 'MySQL', 'Apache Tomcat', 'jQuery'],
-      metrics: [{ label: 'Video Uploads', value: '1000+', icon: TrendingUp }, { label: 'Active Students', value: '300+', icon: Users }, { label: 'Avg Load Time', value: '0.8s', icon: Zap }],
+      tech: ['Python', 'OpenCV', 'Tkinter', 'NumPy', 'SQLite'],
+      metrics: [{ label: 'Accuracy', value: '98%', icon: Target }, { label: 'Processing Speed', value: '<2s', icon: Zap }, { label: 'Time Saved', value: '15m/class', icon: Clock }],
       timeline: [
-        { phase: 'Database Design', duration: '1 week', status: 'completed' },
-        { phase: 'Backend Development', duration: '6 weeks', status: 'completed' },
-        { phase: 'Frontend Integration', duration: '4 weeks', status: 'completed' },
-        { phase: 'Security Audit', duration: '2 weeks', status: 'completed' },
+        { phase: 'Algorithm Selection', duration: '2 weeks', status: 'completed' },
+        { phase: 'Core Vision Logic', duration: '4 weeks', status: 'completed' },
+        { phase: 'GUI Development', duration: '3 weeks', status: 'completed' },
+        { phase: 'Optimization & Testing', duration: '2 weeks', status: 'completed' },
       ],
       challenges: [
-        { problem: 'Video Streaming', solution: 'Implemented adaptive bitrate streaming with CDN integration for smooth playback' },
-        { problem: 'Access Control', solution: 'Designed comprehensive RBAC system with hierarchical permissions' },
-        { problem: 'Database Performance', solution: 'Optimized queries with indexing and implemented caching strategies' },
+        { problem: 'Lighting Variations', solution: 'Applied histogram equalization and image preprocessing to normalize lighting before face detection.' },
+        { problem: 'Processing Lag', solution: 'Optimized frame skipping and reduced resolution during the detection phase to ensure real-time performance.' },
+        { problem: 'UI Responsiveness', solution: 'Separated the heavy OpenCV video loop from the main Tkinter thread using Python threading.' },
       ],
       gradient: 'from-green-500 to-emerald-600',
       gradStops: '#22c55e, #059669',
-      screenshots: ['Library', 'Player', 'Dashboard'],
+      screenshots: ['Dashboard', 'Live Detection', 'Report Export'],
     },
     {
-      name: 'Chat Application',
-      tagline: 'Real-Time Messaging Platform',
-      description: 'A full-featured real-time messaging system supporting both one-on-one and group conversations with media sharing, file transfers, and comprehensive chat management capabilities.',
-      longDescription: 'This chat application delivers enterprise-grade messaging capabilities with a focus on real-time communication and rich media support. Built using Java Servlets and WebSocket technology, it provides instant message delivery with read receipts, typing indicators, and online status updates.',
+      name: 'Attendigo',
+      tagline: 'Smart Attendance Management',
+      description: 'A mobile-first application designed for students and educators to track lecture attendance efficiently with offline support and intuitive timetable integration.',
+      longDescription: 'Attendigo revolutionizes how students manage their academic attendance. With offline-first architecture, students can mark their attendance even without internet connectivity, ensuring no data loss. The app automatically syncs when connected, providing a seamless experience. The minimalist, modern UI prioritizes simple geometric shapes and clean lines, making it incredibly easy to track patterns and maintain attendance records throughout the semester.',
       features: [
-        { title: 'Real-Time Messaging', desc: 'Instant message delivery with WebSocket support and delivery confirmations' },
-        { title: 'Media Sharing', desc: 'Share images, videos, documents, and audio files seamlessly' },
-        { title: 'Group Chats', desc: 'Create groups, manage members, and organize team communications' },
-        { title: 'Message History', desc: 'Searchable chat history with cloud sync across devices' },
-        { title: 'Notifications', desc: 'Smart push notifications with customizable settings' },
-        { title: 'User Presence', desc: 'Online/offline status, last seen, and typing indicators' },
+        { title: 'Smart Attendance Marking', desc: 'Mark attendance as Present, Absent, or Late with optional notes for each lecture' },
+        { title: 'Offline-First Architecture', desc: 'Full functionality even without internet connection, with automatic sync when online' },
+        { title: 'Timetable Integration', desc: 'Organize lectures by timetable for easy tracking and visualization' },
+        { title: 'Minimalist UI/UX', desc: 'Clean, modern interface focused on usability and core data visualization' },
+        { title: 'Attendance Analytics', desc: 'View attendance percentage, trends, and patterns over time' },
+        { title: 'Reminder System', desc: 'Smart notifications for upcoming lectures and low attendance warnings' },
       ],
-      tech: ['Java Servlets', 'JSP', 'MySQL', 'Apache Tomcat', 'WebSocket', 'JavaScript', 'AJAX'],
-      metrics: [{ label: 'Messages/Day', value: '5000+', icon: TrendingUp }, { label: 'Active Chats', value: '200+', icon: Users }, { label: 'Latency', value: '<50ms', icon: Zap }],
+      tech: ['Flutter', 'Dart', 'Firebase', 'SQLite', 'Provider'],
+      metrics: [{ label: 'Performance', value: '99.9%', icon: Zap }, { label: 'Uptime', value: '100%', icon: TrendingUp }, { label: 'User Rating', value: '4.8/5', icon: Star }],
       timeline: [
-        { phase: 'Architecture Design', duration: '2 weeks', status: 'completed' },
-        { phase: 'Real-time Features', duration: '5 weeks', status: 'completed' },
-        { phase: 'Media Handling', duration: '3 weeks', status: 'completed' },
-        { phase: 'Testing & Launch', duration: '2 weeks', status: 'completed' },
+        { phase: 'Planning & Design', duration: '2 weeks', status: 'completed' },
+        { phase: 'Core Development', duration: '4 weeks', status: 'completed' },
+        { phase: 'Testing & Refinement', duration: '2 weeks', status: 'completed' },
+        { phase: 'Deployment', duration: '1 week', status: 'completed' },
       ],
       challenges: [
-        { problem: 'Message Delivery', solution: 'Implemented message queuing system with retry mechanisms for reliability' },
-        { problem: 'File Storage', solution: 'Created efficient file storage with chunked uploads and compression' },
-        { problem: 'Concurrent Users', solution: 'Optimized servlet thread pools and database connections for scalability' },
+        { problem: 'Offline Data Sync', solution: 'Implemented local SQLite database with conflict resolution algorithms for seamless synchronization' },
+        { problem: 'State Management', solution: 'Used Provider pattern for efficient state handling across complex UI components' },
+        { problem: 'UI Consistency', solution: 'Created a custom geometric design system to ensure the minimalist aesthetic remained consistent.' },
       ],
       gradient: 'from-orange-500 to-red-600',
       gradStops: '#f97316, #dc2626',
-      screenshots: ['Inbox', 'Conversation', 'Groups'],
+      screenshots: ['Overview', 'Analytics', 'Timetable'],
     },
     {
       name: 'Ethnicize',
@@ -244,7 +244,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
         { title: 'Analytics Dashboard', desc: 'Sales analytics, customer insights, and performance metrics' },
         { title: 'JWT Authentication', desc: 'Secure token-based authentication with refresh tokens' },
       ],
-      tech: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'Tailwind CSS', 'JWT', 'Redux', 'Stripe'],
+      tech: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'Tailwind CSS', 'Redux', 'Stripe'],
       metrics: [{ label: 'Products Listed', value: '500+', icon: TrendingUp }, { label: 'Active Sellers', value: '50+', icon: Users }, { label: 'Transaction Rate', value: '99.9%', icon: Check }],
       timeline: [
         { phase: 'MVP Development', duration: '4 weeks', status: 'completed' },
@@ -255,41 +255,41 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
       challenges: [
         { problem: 'State Management', solution: 'Implemented Redux with normalized state for efficient data flow across portals' },
         { problem: 'Image Optimization', solution: 'Created image processing pipeline with CDN integration for fast loading' },
-        { problem: 'Search Performance', solution: 'Integrated Elasticsearch for lightning-fast product search and filtering' },
+        { problem: 'Search Performance', solution: 'Optimized backend aggregation pipelines for robust product search and filtering' },
       ],
       gradient: 'from-indigo-500 to-blue-600',
       gradStops: '#6366f1, #2563eb',
       screenshots: ['Storefront', 'Seller Portal', 'Checkout'],
     },
     {
-      name: 'StockSync',
-      tagline: 'Innovative Inventory Management',
-      description: 'A cutting-edge inventory management solution presented at Aavishkar Research Convention 2024, featuring real-time tracking, multi-location synchronization, and predictive analytics for optimized stock management.',
-      longDescription: 'StockSync represents innovative thinking in inventory management, combining real-time data synchronization with predictive analytics to help businesses optimize their stock levels across multiple locations.',
+      name: 'AgriML',
+      tagline: 'Crop Disease Detection Framework',
+      description: 'A specialized machine learning framework designed to detect diseases in Cotton and Pigeon Pea (Tur) crops using computer vision and TFLite models.',
+      longDescription: 'Developed to assist farmers in early disease identification, AgriML leverages convolutional neural networks to analyze leaf imagery. Focusing specifically on Cotton and Pigeon Pea, the system provides accurate diagnostic results through a lightweight TFLite model, making it suitable for deployment on low-power mobile devices in rural areas.',
       features: [
-        { title: 'Real-Time Tracking', desc: 'Live inventory updates across all locations with instant synchronization' },
-        { title: 'Multi-Location Sync', desc: 'Seamless coordination between warehouses, stores, and distribution centers' },
-        { title: 'Predictive Analytics', desc: 'AI-driven demand forecasting and automated reorder suggestions' },
-        { title: 'Smart Alerts', desc: 'Notifications for low stock, expiring items, and unusual patterns' },
-        { title: 'Reporting System', desc: 'Comprehensive reports on stock levels, movements, and trends' },
-        { title: 'Barcode Integration', desc: 'QR and barcode scanning for quick inventory updates' },
+        { title: 'Disease Classification', desc: 'Accurate categorization of common diseases affecting Cotton and Tur crops.' },
+        { title: 'Mobile-Optimized Models', desc: 'Converted heavy TensorFlow models to TFLite for edge deployment.' },
+        { title: 'Annotated Datasets', desc: 'Custom-built, heavily augmented datasets to improve model robustness.' },
+        { title: 'Architectural Pipelines', desc: 'Clear data processing and training pipelines for reproducible research.' },
+        { title: 'Offline Inference', desc: 'On-device processing ensuring functionality without internet access.' },
+        { title: 'High Accuracy', desc: 'Maintained high precision while reducing model size significantly.' },
       ],
-      tech: ['React', 'Node.js', 'PostgreSQL', 'Socket.io', 'ML Models', 'Chart.js'],
-      metrics: [{ label: 'Research Recognition', value: 'Zonal', icon: Star }, { label: 'Efficiency Gain', value: '40%', icon: TrendingUp }, { label: 'Accuracy', value: '98%', icon: Check }],
+      tech: ['Python', 'TensorFlow', 'Keras', 'TFLite', 'Computer Vision'],
+      metrics: [{ label: 'Model Accuracy', value: '92%', icon: Target }, { label: 'Inference Time', value: '<100ms', icon: Zap }, { label: 'Model Size', value: '<5MB', icon: Check }],
       timeline: [
-        { phase: 'Research & Ideation', duration: '3 weeks', status: 'completed' },
-        { phase: 'Prototype Development', duration: '5 weeks', status: 'completed' },
-        { phase: 'Testing & Refinement', duration: '3 weeks', status: 'completed' },
-        { phase: 'Convention Presentation', duration: '1 week', status: 'completed' },
+        { phase: 'Data Collection & Annotation', duration: '3 weeks', status: 'completed' },
+        { phase: 'Model Architecture Design', duration: '2 weeks', status: 'completed' },
+        { phase: 'Training & Evaluation', duration: '4 weeks', status: 'completed' },
+        { phase: 'TFLite Conversion', duration: '1 week', status: 'completed' },
       ],
       challenges: [
-        { problem: 'Data Synchronization', solution: 'Implemented CRDT-based conflict resolution for multi-location updates' },
-        { problem: 'Prediction Accuracy', solution: 'Trained ML models on historical data with seasonal pattern recognition' },
-        { problem: 'Scalability', solution: 'Designed microservices architecture for horizontal scaling' },
+        { problem: 'Data Scarcity', solution: 'Utilized extensive data augmentation techniques (rotation, flipping, brightness adjustments) to artificially expand the training set.' },
+        { problem: 'Model Size Constraints', solution: 'Applied quantization techniques during TFLite conversion to reduce the footprint without sacrificing accuracy.' },
+        { problem: 'False Positives', solution: 'Implemented a confidence threshold logic to only display results when the model was highly certain.' },
       ],
       gradient: 'from-teal-500 to-cyan-600',
       gradStops: '#14b8a6, #0891b2',
-      screenshots: ['Dashboard', 'Analytics', 'Alerts'],
+      screenshots: ['Data Pipeline', 'Model Results', 'Architecture'],
     },
   ];
 
@@ -304,8 +304,8 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
   const nextSimilar = () => setSimilarIndex(i => Math.min(similarProjects.length - visibleSimilar, i + 1));
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060606', fontFamily: "'Syne', sans-serif", color: '#e2e8f0', overflowX: 'hidden' }}>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800;900&display=swap" />
+    <div style={{ minHeight: '100vh', background: '#060606', fontFamily: "'Outfit', sans-serif", color: '#e2e8f0', overflowX: 'hidden' }}>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
 
       {/* ── Global grid texture ───────────────────────────────────── */}
       <div style={{
@@ -368,7 +368,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
               padding: '10px 20px', borderRadius: 12,
               background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)',
               border: '1px solid rgba(255,255,255,0.12)',
-              color: '#cbd5e1', fontFamily: "'Space Mono', monospace",
+              color: '#cbd5e1', fontFamily: "'DM Mono', monospace",
               fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase',
               cursor: 'pointer',
             }}
@@ -384,7 +384,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '5px 14px', borderRadius: 9999,
                 background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-                fontFamily: "'Space Mono', monospace", fontSize: 10,
+                fontFamily: "'DM Mono', monospace", fontSize: 10,
                 letterSpacing: '0.15em', color: '#94a3b8', textTransform: 'uppercase',
                 marginBottom: 20,
               }}
@@ -397,7 +397,8 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
             <motion.h1
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               style={{
-                fontSize: 'clamp(3rem, 8vw, 7rem)', fontWeight: 900,
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 'clamp(3rem, 8vw, 7rem)', fontWeight: 700,
                 letterSpacing: '-0.04em', lineHeight: 0.95, margin: '0 0 24px',
                 background: `linear-gradient(120deg, #ffffff 30%, ${gradStops.split(',')[0]}cc)`,
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
@@ -407,7 +408,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
             {/* Description */}
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35 }}
-              style={{ fontSize: 'clamp(14px, 1.8vw, 18px)', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, maxWidth: 620, margin: '0 0 32px' }}
+              style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(14px, 1.8vw, 18px)', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, maxWidth: 620, margin: '0 0 32px' }}
             >{project.description}</motion.p>
 
             {/* CTA buttons */}
@@ -425,7 +426,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 8,
                     padding: '13px 24px', borderRadius: 14, cursor: 'pointer',
-                    fontWeight: 700, fontSize: 14, fontFamily: "'Syne', sans-serif",
+                    fontWeight: 700, fontSize: 14, fontFamily: "'Outfit', sans-serif",
                     ...(primary
                       ? { background: `linear-gradient(135deg, ${gradStops})`, color: '#fff', border: 'none', boxShadow: `0 12px 32px ${gradStops.split(',')[0]}44` }
                       : { background: 'rgba(255,255,255,0.07)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(12px)' }
@@ -476,8 +477,8 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                   }}>
                     <Icon size={22} color="#fff" />
                   </div>
-                  <div style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-0.03em', color: '#f1f5f9', marginBottom: 6 }}>{metric.value}</div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: '#64748b', textTransform: 'uppercase' }}>{metric.label}</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, letterSpacing: '-0.03em', color: '#f1f5f9', marginBottom: 6 }}>{metric.value}</div>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: '#64748b', textTransform: 'uppercase' }}>{metric.label}</div>
                 </motion.div>
               );
             })}
@@ -543,7 +544,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                     }}
                   />
                 ))}
-                <span style={{ marginLeft: 'auto', fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.08em' }}>
+                <span style={{ marginLeft: 'auto', fontFamily: "'DM Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.08em' }}>
                   {galleryIndex + 1} / 3
                 </span>
               </div>
@@ -563,7 +564,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
             }}>
               <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(180deg, ${gradStops})`, borderRadius: '3px 0 0 3px' }} />
               <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 60% 50% at 0% 50%, ${gradStops.split(',')[0]}0a, transparent 60%)` }} />
-              <p style={{ fontSize: 'clamp(15px, 1.5vw, 17px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, margin: 0, position: 'relative', zIndex: 1 }}>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(15px, 1.5vw, 17px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, margin: 0, position: 'relative', zIndex: 1 }}>
                 {project.longDescription}
               </p>
             </div>
@@ -598,8 +599,8 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                     <Check size={18} color="#fff" />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', margin: '0 0 6px', letterSpacing: '-0.01em' }}>{feature.title}</h3>
-                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, margin: 0 }}>{feature.desc}</p>
+                    <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: '#f1f5f9', margin: '0 0 6px', letterSpacing: '-0.01em' }}>{feature.title}</h3>
+                    <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, margin: 0 }}>{feature.desc}</p>
                   </div>
                 </motion.div>
               </Reveal>
@@ -629,7 +630,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                       display: 'inline-flex', alignItems: 'center', gap: 8,
                       padding: '9px 18px', borderRadius: 12,
                       background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                      fontFamily: "'Space Mono', monospace", fontSize: 12, color: '#94a3b8',
+                      fontFamily: "'DM Mono', monospace", fontSize: 12, color: '#94a3b8',
                       cursor: 'default',
                     }}
                   >
@@ -665,14 +666,14 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                         background: `linear-gradient(135deg, ${gradStops})`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: `0 6px 20px ${gradStops.split(',')[0]}44`,
-                        fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700, color: '#fff',
+                        fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: '#fff',
                       }}>{String(i + 1).padStart(2, '0')}</div>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: '#e2e8f0', marginBottom: 2 }}>{phase.phase}</div>
+                      <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontWeight: 700, color: '#e2e8f0', marginBottom: 2 }}>{phase.phase}</div>
                     </div>
                     <span style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: 11,
+                      fontFamily: "'DM Mono', monospace", fontSize: 11,
                       color: gradStops.split(',')[0], letterSpacing: '0.06em',
                       background: `${gradStops.split(',')[0]}15`,
                       border: `1px solid ${gradStops.split(',')[0]}30`,
@@ -705,18 +706,18 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                       <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <span style={{ color: '#f87171', fontSize: 14, fontWeight: 700 }}>!</span>
                       </div>
-                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: '#ef4444', textTransform: 'uppercase' }}>Challenge</span>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: '#ef4444', textTransform: 'uppercase' }}>Challenge</span>
                     </div>
-                    <h3 style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{c.problem}</h3>
+                    <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>{c.problem}</h3>
                   </div>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                       <div style={{ width: 28, height: 28, borderRadius: 8, background: `${gradStops.split(',')[0]}20`, border: `1px solid ${gradStops.split(',')[0]}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Check size={13} color={gradStops.split(',')[0]} />
                       </div>
-                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: gradStops.split(',')[0], textTransform: 'uppercase' }}>Solution</span>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: gradStops.split(',')[0], textTransform: 'uppercase' }}>Solution</span>
                     </div>
-                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, margin: 0 }}>{c.solution}</p>
+                    <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, margin: 0 }}>{c.solution}</p>
                   </div>
                 </div>
               </div>
@@ -778,16 +779,16 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                     {/* Info */}
                     <div style={{ padding: '20px 20px 22px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                        <h3 style={{ fontSize: 17, fontWeight: 800, color: '#f1f5f9', margin: 0, letterSpacing: '-0.02em' }}>{sp.name}</h3>
+                        <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: '#f1f5f9', margin: 0, letterSpacing: '-0.02em' }}>{sp.name}</h3>
                         <motion.div whileHover={{ scale: 1.15 }}>
                           <ArrowUpRight size={16} color="#475569" />
                         </motion.div>
                       </div>
-                      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, margin: '0 0 14px' }}>{sp.tagline}</p>
+                      <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, margin: '0 0 14px' }}>{sp.tagline}</p>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {sp.tech.slice(0, 3).map(t => (
                           <span key={t} style={{
-                            fontFamily: "'Space Mono', monospace", fontSize: 9, letterSpacing: '0.08em',
+                            fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.08em',
                             color: '#475569', background: 'rgba(255,255,255,0.04)',
                             border: '1px solid rgba(255,255,255,0.07)', padding: '2px 8px', borderRadius: 6,
                             textTransform: 'uppercase',
@@ -820,21 +821,21 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                   padding: '5px 14px', borderRadius: 9999, marginBottom: 20,
                   background: `${gradStops.split(',')[0]}18`,
                   border: `1px solid ${gradStops.split(',')[0]}40`,
-                  fontFamily: "'Space Mono', monospace", fontSize: 10,
+                  fontFamily: "'DM Mono', monospace", fontSize: 10,
                   letterSpacing: '0.14em', color: gradStops.split(',')[0], textTransform: 'uppercase',
                 }}
               >
                 <Star size={11} /> Interested in this project?
               </motion.div>
 
-              <h3 style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.035em', margin: '0 0 16px', color: '#f1f5f9' }}>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 700, letterSpacing: '-0.035em', margin: '0 0 16px', color: '#f1f5f9' }}>
                 Let's Build Something<br />
                 <span style={{ background: `linear-gradient(120deg, ${gradStops})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   Extraordinary
                 </span>
               </h3>
 
-              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, maxWidth: 480, margin: '0 auto 32px' }}>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, maxWidth: 480, margin: '0 auto 32px' }}>
                 Let's discuss how similar solutions can transform your organization.
               </p>
 
@@ -846,7 +847,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                     padding: '14px 28px', borderRadius: 14, cursor: 'pointer',
                     background: `linear-gradient(135deg, ${gradStops})`,
                     border: 'none', color: '#fff', fontWeight: 800, fontSize: 14,
-                    fontFamily: "'Syne', sans-serif",
+                    fontFamily: "'Outfit', sans-serif",
                     boxShadow: `0 16px 40px ${gradStops.split(',')[0]}40`,
                   }}
                 >
@@ -860,7 +861,7 @@ export function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
                     background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)',
                     border: '1px solid rgba(255,255,255,0.12)',
                     color: '#cbd5e1', fontWeight: 700, fontSize: 14,
-                    fontFamily: "'Syne', sans-serif", textDecoration: 'none',
+                    fontFamily: "'Outfit', sans-serif", textDecoration: 'none',
                     display: 'inline-flex', alignItems: 'center', gap: 8,
                   }}
                 >
@@ -886,7 +887,7 @@ function SectionLabel({ icon: Icon, text, inline = false }: { icon: React.Elemen
       }}>
         <Icon size={15} color="#64748b" />
       </div>
-      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: '0.14em', color: '#475569', textTransform: 'uppercase' }}>
+      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: '0.14em', color: '#475569', textTransform: 'uppercase' }}>
         {text}
       </span>
     </div>

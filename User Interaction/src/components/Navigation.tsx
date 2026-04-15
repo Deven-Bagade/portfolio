@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Home } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navigation({ currentView, onBackToHome }: { currentView?: string; onBackToHome?: () => void }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -64,11 +64,11 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap');
       `}</style>
 
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 font-['Syne',_sans-serif] ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 font-['Outfit',_sans-serif] ${
           isScrolled
             ? 'bg-black shadow-2xl border-b border-white/10'
             : 'bg-black'
@@ -141,7 +141,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                             : 'text-white/70 hover:text-white'
                         }`}
                         style={{
-                          fontFamily: "'Space Mono', monospace",
+                          fontFamily: "'DM Mono', monospace",
                           letterSpacing: '0.1em'
                         }}
                       >
@@ -176,7 +176,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                 onClick={onBackToHome}
                 className="hidden lg:flex items-center gap-3 px-7 py-3 rounded-full text-sm font-bold tracking-wider transition-all duration-300"
                 style={{
-                  fontFamily: "'Space Mono', monospace",
+                  fontFamily: "'DM Mono', monospace",
                   background: '#ffffff1a',
                   border: '1px solid #ffffff33',
                   color: '#ffffff',
@@ -305,7 +305,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                             : 'text-white/80 hover:text-white'
                         }`}
                         style={{
-                          fontFamily: "'Space Mono', monospace",
+                          fontFamily: "'DM Mono', monospace",
                           fontWeight: 'bold',
                           letterSpacing: '0.1em',
                           fontSize: '1rem'
@@ -330,7 +330,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                         <span className="relative z-10 flex items-center gap-4">
                           <span 
                             className="text-white/40 text-sm min-w-[32px]"
-                            style={{ fontFamily: "'Space Mono', monospace" }}
+                            style={{ fontFamily: "'DM Mono', monospace" }}
                           >
                             {(index + 1).toString().padStart(2, '0')}
                           </span>
@@ -351,7 +351,7 @@ export function Navigation({ currentView, onBackToHome }: { currentView?: string
                 <div className="flex justify-center mt-6">
                   <span 
                     className="text-white/30 text-xs tracking-widest"
-                    style={{ fontFamily: "'Space Mono', monospace" }}
+                    style={{ fontFamily: "'DM Mono', monospace" }}
                   >
                     NAVIGATION
                   </span>
