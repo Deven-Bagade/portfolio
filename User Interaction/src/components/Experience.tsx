@@ -1,9 +1,21 @@
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Briefcase, Calendar, MapPin, TrendingUp, Code, Users } from 'lucide-react';
 
+// ── Custom Hook for Responsiveness ────────────────────────────────────────────
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+  return matches;
+}
+
 // ── Design tokens ─────────────────────────────────────────────────────────────
-// Accent palette per experience entry
 const ACCENTS = [
   {
     primary: '#e8a87c',      // warm amber
@@ -114,55 +126,68 @@ function Reveal({
 }
 
 // ── Experience card ───────────────────────────────────────────────────────────
-function ExpCard({ exp, index }: { exp: typeof EXPERIENCES[0]; index: number }) {
+function ExpCard({ exp, index, isMobile }: { exp: typeof EXPERIENCES[0]; index: number; isMobile: boolean }) {
   const accent = ACCENTS[index % ACCENTS.length];
   const isRight = index % 2 !== 0;
 
-  return (
-    <div
-      style={{
+  // The central glowing node
+  const TimelineNode = (
+    <Reveal delay={0.1}>
+      <div style={{ position: 'relative', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <motion.div
+          animate={{ scale: [1, 1.7, 1], opacity: [0.6, 0, 0.6] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: accent.glowStrong,
+          }}
+        />
+        <div style={{
+          width: 16, height: 16, borderRadius: '50%',
+          background: accent.primary,
+          boxShadow: `0 0 12px ${accent.primary}`,
+          position: 'relative', zIndex: 1,
+        }} />
+      </div>
+    </Reveal>
+  );
+
+  // MOBILE LAYOUT: Node on left, Card on right taking up remaining width
+  if (isMobile) {
+    return (
+      <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 48px 1fr',
-        alignItems: 'start',
-        gap: 0,
-        marginBottom: 64,
-      }}
-    >
-      {/* ── Left slot ── */}
+        gridTemplateColumns: '48px 1fr', // 2 Columns
+        gap: 16,
+        marginBottom: 48,
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 20 }}>
+          {TimelineNode}
+        </div>
+        <div>
+          <CardBody exp={exp} accent={accent} index={index} side="right" isMobile={isMobile} />
+        </div>
+      </div>
+    );
+  }
+
+  // DESKTOP LAYOUT: Alternating 3 Columns
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr 48px 1fr', // 3 Columns
+      alignItems: 'start',
+      gap: 0,
+      marginBottom: 64,
+    }}>
       <div style={{ paddingRight: 40 }}>
-        {!isRight && <CardBody exp={exp} accent={accent} index={index} side="left" />}
+        {!isRight && <CardBody exp={exp} accent={accent} index={index} side="left" isMobile={isMobile} />}
       </div>
-
-      {/* ── Center line + node ── */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 32 }}>
-        {/* Node */}
-        <Reveal delay={0.1}>
-          <div style={{ position: 'relative', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* Pulse ring */}
-            <motion.div
-              animate={{ scale: [1, 1.7, 1], opacity: [0.6, 0, 0.6] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                background: accent.glowStrong,
-              }}
-            />
-            {/* Core dot */}
-            <div style={{
-              width: 16, height: 16, borderRadius: '50%',
-              background: accent.primary,
-              boxShadow: `0 0 12px ${accent.primary}`,
-              position: 'relative', zIndex: 1,
-            }} />
-          </div>
-        </Reveal>
+        {TimelineNode}
       </div>
-
-      {/* ── Right slot ── */}
       <div style={{ paddingLeft: 40 }}>
-        {isRight && <CardBody exp={exp} accent={accent} index={index} side="right" />}
+        {isRight && <CardBody exp={exp} accent={accent} index={index} side="right" isMobile={isMobile} />}
       </div>
     </div>
   );
@@ -174,13 +199,16 @@ function CardBody({
   accent,
   index,
   side,
+  isMobile,
 }: {
   exp: typeof EXPERIENCES[0];
   accent: typeof ACCENTS[0];
   index: number;
   side: 'left' | 'right';
+  isMobile: boolean;
 }) {
-  const from = side === 'left' ? 'right' : 'left';
+  // On mobile, always animate from the bottom to prevent horizontal scrolling glitches
+  const from = isMobile ? 'bottom' : (side === 'left' ? 'right' : 'left');
 
   return (
     <Reveal from={from} delay={0.05}>
@@ -197,18 +225,16 @@ function CardBody({
           cursor: 'default',
         }}
       >
-        {/* Accent glow top-edge */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 2,
           background: `linear-gradient(90deg, transparent, ${accent.primary}, transparent)`,
         }} />
 
-        {/* Corner accent number */}
         <div style={{
           position: 'absolute', top: 20, right: 20,
           fontFamily: "'Cormorant Garamond', serif",
           fontStyle: 'italic',
-          fontSize: 56,
+          fontSize: 'clamp(40px, 8vw, 56px)', // Responsive corner number
           fontWeight: 700,
           color: accent.number,
           opacity: 0.08,
@@ -219,8 +245,8 @@ function CardBody({
           {String(index + 1).padStart(2, '0')}
         </div>
 
-        <div style={{ padding: '32px 32px 28px' }}>
-          {/* Type badge */}
+        {/* Responsive padding inside the card so it doesn't crush text on mobile */}
+        <div style={{ padding: 'clamp(24px, 5vw, 32px) clamp(20px, 5vw, 32px) clamp(20px, 5vw, 28px)' }}>
           <Reveal delay={0.1 + index * 0.05}>
             <span style={{
               fontFamily: "'DM Mono', monospace",
@@ -239,11 +265,10 @@ function CardBody({
             </span>
           </Reveal>
 
-          {/* Title */}
           <Reveal delay={0.15 + index * 0.05}>
             <h3 style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 'clamp(1.2rem, 2vw, 1.55rem)',
+              fontSize: 'clamp(1.2rem, 4vw, 1.55rem)',
               fontWeight: 700,
               color: '#f0ece4',
               lineHeight: 1.2,
@@ -254,12 +279,11 @@ function CardBody({
             </h3>
           </Reveal>
 
-          {/* Company */}
           <Reveal delay={0.18 + index * 0.05}>
             <p style={{
               fontFamily: "'Outfit', sans-serif",
               fontWeight: 400,
-              fontSize: 15,
+              fontSize: 'clamp(14px, 3vw, 15px)',
               color: accent.primary,
               marginBottom: 18,
               opacity: 0.9,
@@ -268,7 +292,6 @@ function CardBody({
             </p>
           </Reveal>
 
-          {/* Meta row */}
           <Reveal delay={0.22 + index * 0.05}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 22 }}>
               {[
@@ -291,7 +314,6 @@ function CardBody({
             </div>
           </Reveal>
 
-          {/* Description bullets */}
           <div style={{ marginBottom: 24 }}>
             {exp.description.map((line, i) => (
               <Reveal key={i} delay={0.26 + i * 0.06 + index * 0.05}>
@@ -305,7 +327,7 @@ function CardBody({
                   <p style={{
                     fontFamily: "'Outfit', sans-serif",
                     fontWeight: 300,
-                    fontSize: 14,
+                    fontSize: 'clamp(13px, 3vw, 14px)',
                     color: 'rgba(255,255,255,0.65)',
                     lineHeight: 1.75,
                     margin: 0,
@@ -317,7 +339,6 @@ function CardBody({
             ))}
           </div>
 
-          {/* Skill tags */}
           <Reveal delay={0.38 + index * 0.05}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
               {exp.skills.map(skill => (
@@ -363,14 +384,14 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
           borderRadius: 20,
           border: `1px solid ${accent.border}`,
           background: 'rgba(10,10,10,0.9)',
-          padding: '28px 20px',
+          padding: 'clamp(20px, 4vw, 28px) 20px', // Responsive padding
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',
           cursor: 'default',
+          height: '100%',
         }}
       >
-        {/* Glow blob */}
         <div style={{
           position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)',
           width: 80, height: 80, borderRadius: '50%',
@@ -392,7 +413,7 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
         <div style={{
           fontFamily: "'Cormorant Garamond', serif",
           fontStyle: 'italic',
-          fontSize: 36,
+          fontSize: 'clamp(28px, 6vw, 36px)',
           fontWeight: 700,
           color: accent.primary,
           lineHeight: 1,
@@ -403,7 +424,7 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
 
         <div style={{
           fontFamily: "'DM Mono', monospace",
-          fontSize: 10,
+          fontSize: 'clamp(9px, 2.5vw, 10px)',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.38)',
@@ -416,19 +437,20 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => void }) {
+export function Experience() {
+  const isMobile = useMediaQuery('(max-width: 768px)'); // Detect mobile screens
+
   return (
     <section
       id="experience"
       style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: '120px 0 100px',
+        padding: 'clamp(80px, 15vw, 120px) 0 clamp(60px, 15vw, 100px)', // Fluid top/bottom padding
         background: '#080808',
         fontFamily: "'Outfit', sans-serif",
       }}
     >
-      {/* Fonts */}
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap"
@@ -452,11 +474,11 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
       <div style={{
         position: 'relative', zIndex: 10,
         maxWidth: 1400, margin: '0 auto',
-        padding: '0 clamp(16px, 4vw, 64px)',
+        padding: '0 clamp(16px, 4vw, 64px)', // Fluid horizontal padding
       }}>
 
         {/* ── Section header ── */}
-        <Reveal from="bottom" style={{ textAlign: 'center', marginBottom: 80 }}>
+        <Reveal from="bottom" style={{ textAlign: 'center', marginBottom: 'clamp(56px, 8vw, 80px)' }}>
           <span style={{
             fontFamily: "'DM Mono', monospace",
             fontSize: 10,
@@ -471,7 +493,7 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
           <h2 style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontStyle: 'italic',
-            fontSize: 'clamp(2.6rem, 5.5vw, 4.2rem)',
+            fontSize: 'clamp(2.6rem, 8vw, 4.2rem)',
             fontWeight: 700,
             color: '#f0ece4',
             letterSpacing: '-0.02em',
@@ -483,7 +505,7 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
           <p style={{
             fontFamily: "'Outfit', sans-serif",
             fontWeight: 300,
-            fontSize: 14,
+            fontSize: 'clamp(14px, 3vw, 15px)',
             color: 'rgba(255,255,255,0.38)',
             maxWidth: 400,
             margin: '0 auto',
@@ -497,33 +519,33 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
         {/* ── Timeline ── */}
         <div style={{ position: 'relative' }}>
 
-          {/* Vertical line */}
+          {/* Vertical line - Dynamically shifts to the left on mobile */}
           <div style={{
             position: 'absolute',
-            left: 'calc(50% - 0.5px)',
+            left: isMobile ? '24px' : 'calc(50% - 0.5px)', 
             top: 0, bottom: 0,
             width: 1,
             background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.1) 15%, rgba(255,255,255,0.1) 85%, transparent)',
             zIndex: 0,
+            transition: 'left 0.3s ease', // Smooth transition on resize
           }} />
 
           {EXPERIENCES.map((exp, i) => (
-            <ExpCard key={i} exp={exp} index={i} />
+            <ExpCard key={i} exp={exp} index={i} isMobile={isMobile} />
           ))}
         </div>
 
         {/* ── Stats strip ── */}
-        <Reveal from="bottom" delay={0.1} style={{ marginTop: 80 }}>
+        <Reveal from="bottom" delay={0.1} style={{ marginTop: 'clamp(48px, 10vw, 80px)' }}>
           <div style={{
             borderRadius: 24,
             border: '1px solid rgba(255,255,255,0.07)',
             background: 'rgba(10,10,10,0.6)',
             backdropFilter: 'blur(20px)',
-            padding: '40px 40px',
+            padding: 'clamp(24px, 5vw, 40px)', // Responsive container padding
             position: 'relative',
             overflow: 'hidden',
           }}>
-            {/* shimmer top */}
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0, height: 1,
               background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
@@ -531,7 +553,8 @@ export function Experience({ onViewDetail }: { onViewDetail?: (id: number) => vo
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              // Uses min(100%, 140px) so items don't overflow on ultra-narrow phones
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
               gap: 16,
             }}>
               {STATS.map((stat, i) => (
