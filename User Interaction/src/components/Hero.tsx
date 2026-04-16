@@ -6,7 +6,7 @@ import {
   ArrowRight, X, Brain, Server, Cloud, Layers 
 } from 'lucide-react';
 
-// --- 1. Premium Mini UI Components (RESTORED EXACTLY) ---
+// --- 1. Premium Mini UI Components ---
 const Badge = ({ children, className = "" }) => (
   <div className={`inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black uppercase tracking-wider ${className}`} style={{ fontFamily: "'DM Mono', monospace" }}>
     {children}
@@ -104,8 +104,8 @@ function RadialOrbitalTimeline() {
   const [activeNodeId, setActiveNodeId] = useState(null);
   const [frozenAngles, setFrozenAngles] = useState({});
   
-  // Kept dynamic radius to prevent screen overflow, but everything inside uses your exact sizes
   const [orbitRadius, setOrbitRadius] = useState(150); 
+  const [isMobileView, setIsMobileView] = useState(false);
 
   const rotationRef = useRef(0);
   const tweenRef = useRef(null);
@@ -117,12 +117,14 @@ function RadialOrbitalTimeline() {
 
   useEffect(() => {
     const handleResize = () => {
+      setIsMobileView(window.innerWidth < 768);
+      
       if (window.innerWidth < 640) {
-        setOrbitRadius(105); 
+        setOrbitRadius(115); 
       } else if (window.innerWidth < 1024) {
-        setOrbitRadius(130);
+        setOrbitRadius(140);
       } else {
-        setOrbitRadius(150); // Original desktop radius
+        setOrbitRadius(160); 
       }
     };
     handleResize();
@@ -177,6 +179,8 @@ function RadialOrbitalTimeline() {
         related.forEach(relId => (newPulse[relId] = true));
         setPulseEffect(newPulse);
         const nodeIndex = timelineData.findIndex((item) => item.id === id);
+        
+        // Rotate the selected node to the bottom (270 degrees) so it looks great on desktop
         const targetAngle = 270 - (nodeIndex / timelineData.length) * 360;
         tweenToAngle(targetAngle);
       } else {
@@ -247,11 +251,14 @@ function RadialOrbitalTimeline() {
     activeY = orbitRadius * Math.sin((angle * Math.PI) / 180);
   }
 
+  // Active Item Helper for the Mobile Modal
+  const activeItem = timelineData.find(item => item.id === activeNodeId);
+
   return (
     <div
       ref={containerRef}
       className="w-full relative overflow-visible flex items-center justify-center"
-      style={{ height: orbitRadius * 3 + 40, minHeight: '560px' }}
+      style={{ height: orbitRadius * 3 + 40, minHeight: '500px' }}
       onClick={handleBackgroundClick}
       onMouseEnter={() => setIsHoveringOrbit(true)}
       onMouseLeave={() => {
@@ -276,66 +283,33 @@ function RadialOrbitalTimeline() {
 
         {/* Orbital Rings */}
         <div className="transition-all duration-300" style={{
-          position: 'absolute',
-          width: orbitRadius * 1.3,
-          height: orbitRadius * 1.3,
-          top: -(orbitRadius * 0.65),
-          left: -(orbitRadius * 0.65),
-          borderRadius: '50%',
-          border: '1px dashed rgba(156,163,175,0.3)',
-          pointerEvents: 'none',
+          position: 'absolute', width: orbitRadius * 1.3, height: orbitRadius * 1.3, top: -(orbitRadius * 0.65), left: -(orbitRadius * 0.65),
+          borderRadius: '50%', border: '1px dashed rgba(156,163,175,0.3)', pointerEvents: 'none',
         }}></div>
         <div className="transition-all duration-300" style={{
-          position: 'absolute',
-          width: orbitRadius * 2,
-          height: orbitRadius * 2,
-          top: -orbitRadius,
-          left: -orbitRadius,
-          borderRadius: '50%',
-          border: '1px solid rgba(156,163,175,0.2)',
-          pointerEvents: 'none',
+          position: 'absolute', width: orbitRadius * 2, height: orbitRadius * 2, top: -orbitRadius, left: -orbitRadius,
+          borderRadius: '50%', border: '1px solid rgba(156,163,175,0.2)', pointerEvents: 'none',
         }}></div>
         <div className="transition-all duration-300" style={{
-          position: 'absolute',
-          width: orbitRadius * 2.8,
-          height: orbitRadius * 2.8,
-          top: -(orbitRadius * 1.4),
-          left: -(orbitRadius * 1.4),
-          borderRadius: '50%',
-          border: '1px solid rgba(156,163,175,0.12)',
-          pointerEvents: 'none',
+          position: 'absolute', width: orbitRadius * 2.8, height: orbitRadius * 2.8, top: -(orbitRadius * 1.4), left: -(orbitRadius * 1.4),
+          borderRadius: '50%', border: '1px solid rgba(156,163,175,0.12)', pointerEvents: 'none',
         }}></div>
 
         {/* Central Core */}
         <div style={{
-          position: 'absolute',
-          width: 48,
-          height: 48,
-          top: 0,
-          left: 0,
-          transform: 'translate(-50%, -50%)',
-          borderRadius: '50%',
+          position: 'absolute', width: 48, height: 48, top: 0, left: 0,
+          transform: 'translate(-50%, -50%)', borderRadius: '50%',
           background: 'linear-gradient(135deg, #6b7280, #374151)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 0 30px rgba(128,128,128,0.5)',
-          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 30px rgba(128,128,128,0.5)', cursor: 'pointer',
         }}>
-          <div style={{
-            width: 16,
-            height: 16,
-            borderRadius: '50%',
-            background: '#ffffff',
-            boxShadow: '0 0 15px rgba(255,255,255,0.8)',
-          }}></div>
+          <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffffff', boxShadow: '0 0 15px rgba(255,255,255,0.8)' }}></div>
         </div>
 
-        {/* Orbiting Nodes (RESTORED EXACT STYLING AND SIZES) */}
+        {/* Orbiting Nodes */}
         {timelineData.map((item, index) => {
           const angle = (hoveredNodeId === item.id && frozenAngles[item.id] !== undefined)
-            ? frozenAngles[item.id]
-            : getNodeAngle(index);
+            ? frozenAngles[item.id] : getNodeAngle(index);
 
           const radian = (angle * Math.PI) / 180;
           const x = orbitRadius * Math.cos(radian);
@@ -349,25 +323,13 @@ function RadialOrbitalTimeline() {
 
           let nodeBg, nodeBorder, nodeColor, nodeBoxShadow;
           if (isExpanded) {
-            nodeBg = '#ffffff';
-            nodeBorder = '#ffffff';
-            nodeColor = '#000000';
-            nodeBoxShadow = '0 0 25px rgba(255,255,255,0.5)';
+            nodeBg = '#ffffff'; nodeBorder = '#ffffff'; nodeColor = '#000000'; nodeBoxShadow = '0 0 25px rgba(255,255,255,0.5)';
           } else if (isHovered) {
-            nodeBg = 'rgba(107,114,128,0.4)';
-            nodeBorder = '#d1d5db';
-            nodeColor = '#ffffff';
-            nodeBoxShadow = '0 0 20px rgba(128,128,128,0.4)';
+            nodeBg = 'rgba(107,114,128,0.4)'; nodeBorder = '#d1d5db'; nodeColor = '#ffffff'; nodeBoxShadow = '0 0 20px rgba(128,128,128,0.4)';
           } else if (isRelated) {
-            nodeBg = 'rgba(107,114,128,0.4)';
-            nodeBorder = '#d1d5db';
-            nodeColor = '#ffffff';
-            nodeBoxShadow = 'none';
+            nodeBg = 'rgba(107,114,128,0.4)'; nodeBorder = '#d1d5db'; nodeColor = '#ffffff'; nodeBoxShadow = 'none';
           } else {
-            nodeBg = 'rgba(10,10,10,0.8)';
-            nodeBorder = 'rgba(255,255,255,0.3)';
-            nodeColor = '#ffffff';
-            nodeBoxShadow = 'none';
+            nodeBg = 'rgba(10,10,10,0.8)'; nodeBorder = 'rgba(255,255,255,0.3)'; nodeColor = '#ffffff'; nodeBoxShadow = 'none';
           }
 
           return (
@@ -375,13 +337,10 @@ function RadialOrbitalTimeline() {
               key={item.id}
               className="absolute flex flex-col items-center justify-center"
               style={{
-                left: x,
-                top: y,
-                transform: 'translate(-50%, -50%)',
+                left: x, top: y, transform: 'translate(-50%, -50%)',
                 zIndex: isExpanded ? 100 : (isHovered ? 60 : 30),
               }}
             >
-              {/* Energy Pulse Ring */}
               <AnimatePresence>
                 {(isPulsing || isHovered) && (
                   <motion.div
@@ -390,36 +349,21 @@ function RadialOrbitalTimeline() {
                     exit={{ scale: 0.8, opacity: 0 }}
                     transition={{ duration: 1, repeat: Infinity }}
                     style={{
-                      position: 'absolute',
-                      borderRadius: '50%',
-                      pointerEvents: 'none',
+                      position: 'absolute', borderRadius: '50%', pointerEvents: 'none',
                       background: 'radial-gradient(circle, rgba(128,128,128,0.4) 0%, transparent 70%)',
-                      width: item.energy + 40,
-                      height: item.energy + 40,
-                      top: '50%',
-                      left: '50%',
+                      width: item.energy + 40, height: item.energy + 40, top: '50%', left: '50%',
                       transform: 'translate(-50%, -50%)',
                     }}
                   />
                 )}
               </AnimatePresence>
 
-              {/* Node Icon Button (RESTORED TO 48x48) */}
               <motion.button
                 style={{
-                  position: 'relative',
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: `2px solid ${nodeBorder}`,
-                  background: nodeBg,
-                  color: nodeColor,
-                  boxShadow: nodeBoxShadow,
-                  cursor: 'pointer',
-                  outline: 'none',
+                  position: 'relative', width: 48, height: 48, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `2px solid ${nodeBorder}`, background: nodeBg, color: nodeColor,
+                  boxShadow: nodeBoxShadow, cursor: 'pointer', outline: 'none',
                   transition: 'background 0.3s, border-color 0.3s, box-shadow 0.3s',
                 }}
                 whileHover={{ scale: 1.08 }}
@@ -431,21 +375,12 @@ function RadialOrbitalTimeline() {
                 <Icon size={22} strokeWidth={isExpanded ? 2.5 : 2} />
               </motion.button>
 
-              {/* Node Label (RESTORED EXACTLY) */}
               <motion.div
                 style={{
-                  position: 'absolute',
-                  top: 50,
-                  padding: '6px 12px',
-                  borderRadius: 9999,
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  backdropFilter: 'blur(8px)',
-                  whiteSpace: 'nowrap',
-                  fontFamily: "'DM Mono', monospace",
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  fontSize: '0.875rem',
-                  pointerEvents: 'none',
+                  position: 'absolute', top: 50, padding: '6px 12px', borderRadius: 9999,
+                  border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(8px)',
+                  whiteSpace: 'nowrap', fontFamily: "'DM Mono', monospace", fontWeight: 700,
+                  letterSpacing: '0.1em', fontSize: '0.875rem', pointerEvents: 'none',
                   background: isExpanded || isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(10,10,10,0.8)',
                   color: '#ffffff',
                 }}
@@ -454,49 +389,31 @@ function RadialOrbitalTimeline() {
                 {item.title}
               </motion.div>
 
-              {/* Card Popup (RESTORED EXACTLY) */}
+              {/* DESKTOP ONLY: Dropdown style popup */}
               <AnimatePresence>
-                {isExpanded && (
+                {!isMobileView && isExpanded && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, x: '-50%', scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
+                    exit={{ opacity: 0, y: 10, x: '-50%', scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                     style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      marginTop: '20px',
-                      width: 'min(360px, calc(100vw - 32px))', // Kept min() just to stop it blowing out mobile screens, but 360px is the priority base
-                      zIndex: 200,
+                      position: 'absolute', top: '100%', left: '50%',
+                      marginTop: '20px', width: '360px', zIndex: 200,
                     }}
                   >
                     <div style={{
-                      position: 'absolute',
-                      top: -8,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 2,
-                      height: 8,
-                      background: 'linear-gradient(to top, rgba(255,255,255,0.5), transparent)',
+                      position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)',
+                      width: 2, height: 8, background: 'linear-gradient(to top, rgba(255,255,255,0.5), transparent)',
                     }}></div>
 
-                    <Card style={{ borderColor: 'rgba(255,255,255,0.3)' }}>
+                    <Card style={{ borderColor: 'rgba(255,255,255,0.4)' , marginTop: '20px'}}>
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleItem(item.id, e); }}
                         style={{
-                          position: 'absolute',
-                          top: 16,
-                          right: 16,
-                          color: 'rgba(255,255,255,0.7)',
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          zIndex: 10,
-                          padding: 4,
-                          borderRadius: '50%',
-                          transition: 'color 0.2s, background 0.2s',
+                          position: 'absolute', top: 16, right: 16, color: 'rgba(255,255,255,0.7)',
+                          background: 'transparent', border: 'none', cursor: 'pointer', zIndex: 10,
+                          padding: 4, borderRadius: '50%', transition: 'color 0.2s, background 0.2s',
                         }}
                         onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
                         onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.background = 'transparent'; }}
@@ -530,18 +447,10 @@ function RadialOrbitalTimeline() {
                                     key={relId}
                                     onClick={(e) => { e.stopPropagation(); toggleItem(relId, e); }}
                                     style={{
-                                      height: 32,
-                                      padding: '0 12px',
-                                      border: '1px solid rgba(255,255,255,0.3)',
-                                      background: 'rgba(255,255,255,0.1)',
-                                      color: '#ffffff',
-                                      fontSize: '0.875rem',
-                                      fontFamily: "'DM Mono', monospace",
-                                      borderRadius: 8,
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      transition: 'background 0.2s, border-color 0.2s',
+                                      height: 32, padding: '0 12px', border: '1px solid rgba(255,255,255,0.3)',
+                                      background: 'rgba(255,255,255,0.1)', color: '#ffffff', fontSize: '0.875rem',
+                                      fontFamily: "'DM Mono', monospace", borderRadius: 8, cursor: 'pointer',
+                                      display: 'inline-flex', alignItems: 'center', transition: 'background 0.2s, border-color 0.2s',
                                     }}
                                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(107,114,128,0.3)'; e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; }}
                                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
@@ -563,6 +472,91 @@ function RadialOrbitalTimeline() {
           );
         })}
       </div>
+
+      {/* MOBILE ONLY: Screen-Centered Modal placed completely outside the transformed nodes */}
+      <AnimatePresence>
+        {isMobileView && activeItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
+          >
+            {/* Backdrop that closes the modal on click */}
+            <div 
+              className="absolute inset-0 bg-black/80"
+              onClick={(e) => toggleItem(activeItem.id, e)}
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative z-10 w-full max-w-[340px]"
+            >
+              <Card style={{ borderColor: 'rgba(255,255,255,0.4)', boxShadow: '0 30px 60px rgba(0,0,0,0.9)' }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleItem(activeItem.id, e); }}
+                  style={{
+                    position: 'absolute', top: 16, right: 16, color: 'rgba(255,255,255,0.7)',
+                    background: 'transparent', border: 'none', cursor: 'pointer', zIndex: 10,
+                    padding: 4, borderRadius: '50%', transition: 'color 0.2s, background 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <X size={18} />
+                </button>
+
+                <CardHeader>
+                  <CardTitle style={{ paddingTop: 4 }}>{activeItem.title}</CardTitle>
+                </CardHeader>
+                <hr style={{ borderColor: '#ffffff', margin: '0 24px' }} />
+
+                <CardContent>
+                  <p style={{ fontSize: '0.95rem', color: '#ffffff', lineHeight: 1.6, fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>
+                    {activeItem.content}
+                  </p>
+
+                  {activeItem.relatedIds.length > 0 && (
+                    <div style={{ marginTop: 20, paddingTop: 12, borderTop: '1px solid #ffffff' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+                        <LinkIcon size={14} style={{ color: '#ffffff', marginRight: 8 }} />
+                        <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, color: 'rgba(255,255,255,0.8)', fontFamily: "'DM Mono', monospace" }}>
+                          Connected Skills
+                        </h4>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {activeItem.relatedIds.map((relId) => {
+                          const relItem = timelineData.find((i) => i.id === relId);
+                          return (
+                            <button
+                              key={relId}
+                              onClick={(e) => { e.stopPropagation(); toggleItem(relId, e); }}
+                              style={{
+                                height: 32, padding: '0 12px', border: '1px solid rgba(255,255,255,0.3)',
+                                background: 'rgba(255,255,255,0.1)', color: '#ffffff', fontSize: '0.875rem',
+                                fontFamily: "'DM Mono', monospace", borderRadius: 8, cursor: 'pointer',
+                                display: 'inline-flex', alignItems: 'center', transition: 'background 0.2s, border-color 0.2s',
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(107,114,128,0.3)'; e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+                            >
+                              {relItem?.title}
+                              <ArrowRight size={12} style={{ marginLeft: 6, opacity: 0.5 }} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
@@ -619,7 +613,6 @@ export function Hero() {
         </>
       )}
 
-      {/* Left/Right Container - Maintains structural fix so orbits don't overlap text */}
       <div className="relative z-10 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center my-auto">
 
         {/* LEFT COLUMN: Text and Buttons */}
@@ -631,25 +624,11 @@ export function Hero() {
         >
           {/* Available badge */}
           <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '10px 20px',
-            marginBottom: 32,
-            borderRadius: 9999,
-            border: '1px solid rgba(156,163,175,0.3)',
-            background: 'rgba(156,163,175,0.1)',
-            backdropFilter: 'blur(8px)',
+            display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', marginBottom: 32,
+            borderRadius: 9999, border: '1px solid rgba(156,163,175,0.3)', background: 'rgba(156,163,175,0.1)', backdropFilter: 'blur(8px)',
           }}>
             <span style={{ position: 'relative', display: 'flex', width: 10, height: 10 }}>
-              <span style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                background: '#9ca3af',
-                animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite',
-                opacity: 0.75,
-              }} />
+              <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#9ca3af', animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.75 }} />
               <span style={{ position: 'relative', display: 'inline-flex', width: 10, height: 10, borderRadius: '50%', background: '#9ca3af' }} />
             </span>
             <span style={{ fontSize: '0.875rem', fontFamily: "'DM Mono', monospace", color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -683,8 +662,7 @@ export function Hero() {
 
           {/* Bio paragraph */}
           <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1rem, 1.5vw, 1.125rem)', color: 'rgba(255,255,255,0.8)', maxWidth: 560, marginBottom: 32, lineHeight: 1.6 }}>
-            B.Tech IT student with{' '}
-            <span style={{ color: '#d1d5db', fontWeight: 600 }}>9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
+            B.Tech IT student with <span style={{ color: '#d1d5db', fontWeight: 600 }}>9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
           </p>
 
           {/* Contact Info Tags */}
@@ -694,116 +672,60 @@ export function Hero() {
               { href: 'mailto:devenbofficial@gmail.com', icon: Mail, label: 'Email Me' },
             ].map(({ href, icon: Icon, label }) => (
               <a
-                key={label}
-                href={href}
+                key={label} href={href}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '10px 20px',
-                  borderRadius: 12,
-                  border: '1px solid #ffffff',
-                  background: 'rgba(255,255,255,0.1)',
-                  backdropFilter: 'blur(8px)',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize: '0.85rem',
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 12,
+                  border: '1px solid #ffffff', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)',
+                  color: '#ffffff', textDecoration: 'none', fontFamily: "'DM Mono', monospace", fontSize: '0.85rem',
                   transition: 'border-color 0.3s, background 0.3s',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
               >
-                <Icon style={{ width: 18, height: 18, color: '#d1d5db' }} />
-                {label}
+                <Icon style={{ width: 18, height: 18, color: '#d1d5db' }} /> {label}
               </a>
             ))}
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '10px 20px',
-              borderRadius: 12,
-              border: '1px solid #ffffff',
-              background: 'rgba(255,255,255,0.1)',
-              color: '#ffffff',
-              fontFamily: "'DM Mono', monospace",
-              fontSize: '0.85rem',
+              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 12,
+              border: '1px solid #ffffff', background: 'rgba(255,255,255,0.1)', color: '#ffffff',
+              fontFamily: "'DM Mono', monospace", fontSize: '0.85rem',
             }}>
-              <MapPin style={{ width: 18, height: 18, color: '#d1d5db' }} />
-              Kalyan, MH
+              <MapPin style={{ width: 18, height: 18, color: '#d1d5db' }} /> Kalyan, MH
             </div>
           </div>
 
           {/* CTA Buttons */}
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', lg: 'justify-start', gap: 16 }}>
             <motion.a
-              href="https://github.com/Deven-Bagade"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -3, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              href="https://github.com/Deven-Bagade" target="_blank" rel="noopener noreferrer"
+              whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '14px 28px',
-                background: '#ffffff',
-                color: '#000000',
-                borderRadius: 12,
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                textDecoration: 'none',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#ffffff',
+                color: '#000000', borderRadius: 12, fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '0.95rem',
+                textDecoration: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
               }}
             >
               <Github style={{ width: 20, height: 20 }} /> GitHub
             </motion.a>
 
             <motion.a
-              href="https://www.linkedin.com/in/deven-bagade-5b092b2b3"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -3, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              href="https://www.linkedin.com/in/deven-bagade-5b092b2b3" target="_blank" rel="noopener noreferrer"
+              whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '14px 28px',
-                background: 'linear-gradient(135deg, #4b5563, #1f2937)',
-                color: '#ffffff',
-                borderRadius: 12,
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                textDecoration: 'none',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: 'linear-gradient(135deg, #4b5563, #1f2937)',
+                color: '#ffffff', borderRadius: 12, fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '0.95rem',
+                textDecoration: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
               }}
             >
               <Linkedin style={{ width: 20, height: 20 }} /> LinkedIn
             </motion.a>
 
             <motion.a
-              href="#contact"
-              whileHover={{ y: -3, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              href="#contact" whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '14px 28px',
-                border: '1px solid rgba(255,255,255,0.4)',
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(8px)',
-                color: '#ffffff',
-                borderRadius: 12,
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                textDecoration: 'none',
-                transition: 'background 0.3s',
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', border: '1px solid rgba(255,255,255,0.4)',
+                background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', color: '#ffffff', borderRadius: 12,
+                fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', transition: 'background 0.3s',
               }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
@@ -818,7 +740,7 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-          className="flex items-center justify-center min-h-[560px] z-10 mt-12 lg:mt-0 relative w-full"
+          className="flex items-center justify-center min-h-[460px] lg:min-h-[560px] z-10 mt-12 lg:mt-0 relative w-full"
         >
           <RadialOrbitalTimeline />
         </motion.div>
@@ -827,16 +749,8 @@ export function Hero() {
       {/* Scroll Indicator */}
       <motion.div
         style={{
-          position: 'absolute',
-          bottom: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 6,
-          cursor: 'pointer',
+          position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 10,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer',
         }}
         animate={reduceMotion ? {} : { y: [0, 8, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}

@@ -47,7 +47,7 @@ export default function App() {
       `}} />
 
       {/* Updated main wrapper to ensure strict 100% width constraint */}
-      <main className="relative w-full max-w-full overflow-x-hidden bg-[#080808] text-white min-h-screen">      
+      <main className="relative w-full max-w-full overflow-x-hidden bg-[#080808] min-h-screen">      
         <Navigation currentView={currentView.type} onBackToHome={handleBackToHome} />
         {/* <ScrollProgress /> */}
         
