@@ -2,11 +2,11 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { 
   Github, Linkedin, Mail, MapPin, Phone, ArrowDown, Sparkles, 
-  Calendar, Code, FileText, User, Clock, Zap, Link as LinkIcon, 
+  Code, User, Clock, Zap, Link as LinkIcon, 
   ArrowRight, X, Brain, Server, Cloud, Layers 
-} from 'lucide-react'
+} from 'lucide-react';
 
-// --- 1. Premium Mini UI Components ---
+// --- 1. Premium Mini UI Components (RESTORED EXACTLY) ---
 const Badge = ({ children, className = "" }) => (
   <div className={`inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black uppercase tracking-wider ${className}`} style={{ fontFamily: "'DM Mono', monospace" }}>
     {children}
@@ -82,12 +82,12 @@ const timelineData = [
   },
 ];
 
-// Easing function: ease-in-out cubic
+// Easing function
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Shortest angular delta (handles wrap-around)
+// Shortest angular delta
 function shortestAngleDelta(from, to) {
   let delta = ((to - from) % 360 + 360) % 360;
   if (delta > 180) delta -= 360;
@@ -103,6 +103,9 @@ function RadialOrbitalTimeline() {
   const [pulseEffect, setPulseEffect] = useState({});
   const [activeNodeId, setActiveNodeId] = useState(null);
   const [frozenAngles, setFrozenAngles] = useState({});
+  
+  // Kept dynamic radius to prevent screen overflow, but everything inside uses your exact sizes
+  const [orbitRadius, setOrbitRadius] = useState(150); 
 
   const rotationRef = useRef(0);
   const tweenRef = useRef(null);
@@ -110,8 +113,22 @@ function RadialOrbitalTimeline() {
   const isTweeningRef = useRef(false);
   const containerRef = useRef(null);
 
-  const ORBIT_RADIUS = 150;
-  const TWEEN_DURATION = 700; // ms
+  const TWEEN_DURATION = 700;
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setOrbitRadius(105); 
+      } else if (window.innerWidth < 1024) {
+        setOrbitRadius(130);
+      } else {
+        setOrbitRadius(150); // Original desktop radius
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const syncAngle = (angle) => {
     rotationRef.current = ((angle % 360) + 360) % 360;
@@ -226,14 +243,15 @@ function RadialOrbitalTimeline() {
   if (activeNodeId) {
     const activeIndex = timelineData.findIndex(i => i.id === activeNodeId);
     const angle = getNodeAngle(activeIndex);
-    activeX = ORBIT_RADIUS * Math.cos((angle * Math.PI) / 180);
-    activeY = ORBIT_RADIUS * Math.sin((angle * Math.PI) / 180);
+    activeX = orbitRadius * Math.cos((angle * Math.PI) / 180);
+    activeY = orbitRadius * Math.sin((angle * Math.PI) / 180);
   }
 
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[560px] relative overflow-visible"
+      className="w-full relative overflow-visible flex items-center justify-center"
+      style={{ height: orbitRadius * 3 + 40, minHeight: '560px' }}
       onClick={handleBackgroundClick}
       onMouseEnter={() => setIsHoveringOrbit(true)}
       onMouseLeave={() => {
@@ -241,7 +259,7 @@ function RadialOrbitalTimeline() {
         setHoveredNodeId(null);
       }}
     >
-      <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0 }}>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 0, height: 0 }}>
 
         {/* Connection line SVG */}
         <svg style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
@@ -257,32 +275,32 @@ function RadialOrbitalTimeline() {
         </svg>
 
         {/* Orbital Rings */}
-        <div style={{
+        <div className="transition-all duration-300" style={{
           position: 'absolute',
-          width: ORBIT_RADIUS * 1.3,
-          height: ORBIT_RADIUS * 1.3,
-          top: -(ORBIT_RADIUS * 0.65),
-          left: -(ORBIT_RADIUS * 0.65),
+          width: orbitRadius * 1.3,
+          height: orbitRadius * 1.3,
+          top: -(orbitRadius * 0.65),
+          left: -(orbitRadius * 0.65),
           borderRadius: '50%',
           border: '1px dashed rgba(156,163,175,0.3)',
           pointerEvents: 'none',
         }}></div>
-        <div style={{
+        <div className="transition-all duration-300" style={{
           position: 'absolute',
-          width: ORBIT_RADIUS * 2,
-          height: ORBIT_RADIUS * 2,
-          top: -ORBIT_RADIUS,
-          left: -ORBIT_RADIUS,
+          width: orbitRadius * 2,
+          height: orbitRadius * 2,
+          top: -orbitRadius,
+          left: -orbitRadius,
           borderRadius: '50%',
           border: '1px solid rgba(156,163,175,0.2)',
           pointerEvents: 'none',
         }}></div>
-        <div style={{
+        <div className="transition-all duration-300" style={{
           position: 'absolute',
-          width: ORBIT_RADIUS * 2.8,
-          height: ORBIT_RADIUS * 2.8,
-          top: -(ORBIT_RADIUS * 1.4),
-          left: -(ORBIT_RADIUS * 1.4),
+          width: orbitRadius * 2.8,
+          height: orbitRadius * 2.8,
+          top: -(orbitRadius * 1.4),
+          left: -(orbitRadius * 1.4),
           borderRadius: '50%',
           border: '1px solid rgba(156,163,175,0.12)',
           pointerEvents: 'none',
@@ -293,8 +311,8 @@ function RadialOrbitalTimeline() {
           position: 'absolute',
           width: 48,
           height: 48,
-          top: '50%',
-          left: '50%',
+          top: 0,
+          left: 0,
           transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
           background: 'linear-gradient(135deg, #6b7280, #374151)',
@@ -313,15 +331,15 @@ function RadialOrbitalTimeline() {
           }}></div>
         </div>
 
-        {/* Orbiting Nodes */}
+        {/* Orbiting Nodes (RESTORED EXACT STYLING AND SIZES) */}
         {timelineData.map((item, index) => {
           const angle = (hoveredNodeId === item.id && frozenAngles[item.id] !== undefined)
             ? frozenAngles[item.id]
             : getNodeAngle(index);
 
           const radian = (angle * Math.PI) / 180;
-          const x = ORBIT_RADIUS * Math.cos(radian);
-          const y = ORBIT_RADIUS * Math.sin(radian);
+          const x = orbitRadius * Math.cos(radian);
+          const y = orbitRadius * Math.sin(radian);
 
           const isExpanded = expandedItems[item.id];
           const isRelated = activeNodeId && timelineData.find(i => i.id === activeNodeId)?.relatedIds.includes(item.id);
@@ -386,7 +404,7 @@ function RadialOrbitalTimeline() {
                 )}
               </AnimatePresence>
 
-              {/* Node Icon Button */}
+              {/* Node Icon Button (RESTORED TO 48x48) */}
               <motion.button
                 style={{
                   position: 'relative',
@@ -413,7 +431,7 @@ function RadialOrbitalTimeline() {
                 <Icon size={22} strokeWidth={isExpanded ? 2.5 : 2} />
               </motion.button>
 
-              {/* Node Label (DM Mono for Labels) */}
+              {/* Node Label (RESTORED EXACTLY) */}
               <motion.div
                 style={{
                   position: 'absolute',
@@ -436,7 +454,7 @@ function RadialOrbitalTimeline() {
                 {item.title}
               </motion.div>
 
-              {/* Card Popup */}
+              {/* Card Popup (RESTORED EXACTLY) */}
               <AnimatePresence>
                 {isExpanded && (
                   <motion.div
@@ -450,7 +468,7 @@ function RadialOrbitalTimeline() {
                       left: '50%',
                       transform: 'translateX(-50%)',
                       marginTop: '20px',
-                      width: '360px',
+                      width: 'min(360px, calc(100vw - 32px))', // Kept min() just to stop it blowing out mobile screens, but 360px is the priority base
                       zIndex: 200,
                     }}
                   >
@@ -492,7 +510,6 @@ function RadialOrbitalTimeline() {
                       <hr style={{ borderColor: '#ffffff', margin: '0 24px' }} />
 
                       <CardContent>
-                        {/* Body text (Outfit) */}
                         <p style={{ fontSize: '1rem', color: '#ffffff', lineHeight: 1.6, fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>
                           {item.content}
                         </p>
@@ -501,7 +518,6 @@ function RadialOrbitalTimeline() {
                           <div style={{ marginTop: 20, paddingTop: 12, borderTop: '1px solid #ffffff' }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                               <LinkIcon size={14} style={{ color: '#ffffff', marginRight: 8 }} />
-                              {/* Label/Tag font (DM Mono) */}
                               <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, color: 'rgba(255,255,255,0.8)', fontFamily: "'DM Mono', monospace" }}>
                                 Connected Skills
                               </h4>
@@ -520,7 +536,7 @@ function RadialOrbitalTimeline() {
                                       background: 'rgba(255,255,255,0.1)',
                                       color: '#ffffff',
                                       fontSize: '0.875rem',
-                                      fontFamily: "'DM Mono', monospace", // Tags
+                                      fontFamily: "'DM Mono', monospace",
                                       borderRadius: 8,
                                       cursor: 'pointer',
                                       display: 'inline-flex',
@@ -573,11 +589,9 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative min-h-screen overflow-hidden"
-      // Applied Base Body Font (Outfit) here
-      style={{ background: '#0a0a0a', fontFamily: "'Outfit', sans-serif", padding: '100px 48px' }}
+      className="relative min-h-screen overflow-x-hidden py-24 px-6 md:px-12 flex flex-col justify-center"
+      style={{ background: '#0a0a0a', fontFamily: "'Outfit', sans-serif" }}
     >
-      {/* Updated Google Fonts Stylesheet */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
 
       {/* Background Effects */}
@@ -593,249 +607,243 @@ export function Hero() {
       {!reduceMotion && (
         <>
           <motion.div
-            className="pointer-events-none absolute rounded-full blur-3xl"
+            className="pointer-events-none absolute rounded-full blur-3xl hidden md:block"
             animate={{ x: mousePosition.x * 0.02, y: mousePosition.y * 0.02 }}
             style={{ left: '10%', top: '20%', width: '40%', height: '40%', background: 'radial-gradient(circle, rgba(128,128,128,0.1) 0%, transparent 70%)' }}
           />
           <motion.div
-            className="pointer-events-none absolute rounded-full blur-3xl"
+            className="pointer-events-none absolute rounded-full blur-3xl hidden md:block"
             animate={{ x: mousePosition.x * -0.01, y: mousePosition.y * -0.01 }}
             style={{ right: '10%', bottom: '10%', width: '35%', height: '35%', background: 'radial-gradient(circle, rgba(64,64,64,0.08) 0%, transparent 70%)' }}
           />
         </>
       )}
 
-      <div className="relative z-10 mx-auto max-w-7xl min-h-[85vh] flex items-center">
-        <div className="grid lg:grid-cols-2 gap-16 items-center w-full">
+      {/* Left/Right Container - Maintains structural fix so orbits don't overlap text */}
+      <div className="relative z-10 mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center my-auto">
 
-          {/* Left Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="text-center lg:text-left px-4 lg:px-0"
-          >
-            {/* Available badge (DM Mono for Tags) */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '12px 24px',
-              marginBottom: 40,
-              borderRadius: 9999,
-              border: '1px solid rgba(156,163,175,0.3)',
-              background: 'rgba(156,163,175,0.1)',
-              backdropFilter: 'blur(8px)',
-            }}>
-              <span style={{ position: 'relative', display: 'flex', width: 12, height: 12 }}>
-                <span style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: '50%',
-                  background: '#9ca3af',
-                  animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite',
-                  opacity: 0.75,
-                }} />
-                <span style={{ position: 'relative', display: 'inline-flex', width: 12, height: 12, borderRadius: '50%', background: '#9ca3af' }} />
-              </span>
-              <span style={{ fontSize: '1rem', fontFamily: "'DM Mono', monospace", color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <Sparkles style={{ display: 'inline', width: 20, height: 20, marginRight: 6, color: '#67e8f9', verticalAlign: 'middle' }} />
-                Available for opportunities
-              </span>
-            </div>
+        {/* LEFT COLUMN: Text and Buttons */}
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="flex flex-col items-center lg:items-start text-center lg:text-left z-20 w-full"
+        >
+          {/* Available badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 20px',
+            marginBottom: 32,
+            borderRadius: 9999,
+            border: '1px solid rgba(156,163,175,0.3)',
+            background: 'rgba(156,163,175,0.1)',
+            backdropFilter: 'blur(8px)',
+          }}>
+            <span style={{ position: 'relative', display: 'flex', width: 10, height: 10 }}>
+              <span style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background: '#9ca3af',
+                animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite',
+                opacity: 0.75,
+              }} />
+              <span style={{ position: 'relative', display: 'inline-flex', width: 10, height: 10, borderRadius: '50%', background: '#9ca3af' }} />
+            </span>
+            <span style={{ fontSize: '0.875rem', fontFamily: "'DM Mono', monospace", color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Sparkles style={{ display: 'inline', width: 16, height: 16, marginRight: 6, color: '#67e8f9', verticalAlign: 'middle' }} />
+              Available for opportunities
+            </span>
+          </div>
 
-            {/* Name Heading (Cormorant Garamond) */}
-            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(4rem, 8vw, 7rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: 24, lineHeight: 1.1 }}>
-              <span style={{ background: 'linear-gradient(90deg, #d1d5db, #ffffff, #6b7280)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                Deven Bagade
-              </span>
-            </h1>
+          {/* Name Heading */}
+          <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: 16, lineHeight: 1.1 }}>
+            <span style={{ background: 'linear-gradient(90deg, #d1d5db, #ffffff, #6b7280)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              Deven Bagade
+            </span>
+          </h1>
 
-            {/* Animated Title Heading (Cormorant Garamond) */}
-            <div style={{ height: 80, marginBottom: 20 }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentTitle}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.4 }}
-                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 600, color: '#ffffff' }}
-                >
-                  {titles[currentTitle]}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Bio paragraph (Outfit) */}
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', color: 'rgba(255,255,255,0.8)', maxWidth: 560, marginBottom: 40, lineHeight: 1.7 }}>
-              B.Tech IT student with{' '}
-              <span style={{ color: '#d1d5db', fontWeight: 600 }}>9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
-            </p>
-
-            {/* Contact Info Tags (DM Mono) */}
-            <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'flex-start', gap: 16, marginBottom: 40, overflowX: 'visible', paddingBottom: 8 }}>
-              {[
-                { href: 'tel:+918369183414', icon: Phone, label: '+91 8369183414' },
-                { href: 'mailto:devenbofficial@gmail.com', icon: Mail, label: 'devenbofficial@gmail.com' },
-              ].map(({ href, icon: Icon, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    padding: '12px 24px',
-                    borderRadius: 12,
-                    border: '1px solid #ffffff',
-                    background: 'rgba(255,255,255,0.1)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#ffffff',
-                    textDecoration: 'none',
-                    fontFamily: "'DM Mono', monospace", // Label Font
-                    fontSize: '0.9rem',
-                    whiteSpace: 'nowrap',
-                    transition: 'border-color 0.3s, background 0.3s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-                >
-                  <Icon style={{ width: 20, height: 20, color: '#d1d5db' }} />
-                  {label}
-                </a>
-              ))}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '12px 24px',
-                borderRadius: 12,
-                border: '1px solid #ffffff',
-                background: 'rgba(255,255,255,0.1)',
-                color: '#ffffff',
-                fontFamily: "'DM Mono', monospace", // Label Font
-                fontSize: '0.9rem',
-                whiteSpace: 'nowrap',
-              }}>
-                <MapPin style={{ width: 20, height: 20, color: '#d1d5db' }} />
-                Kalyan, MH
-              </div>
-            </div>
-
-            {/* CTA Buttons - UI Components (Outfit) */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 16 }}>
-              <motion.a
-                href="https://github.com/Deven-Bagade"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ y: -3, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '16px 32px',
-                  background: '#ffffff',
-                  color: '#000000',
-                  borderRadius: 12,
-                  fontFamily: "'Outfit', sans-serif", // UI Button Font
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  textDecoration: 'none',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
+          {/* Animated Title Heading */}
+          <div style={{ height: 60, marginBottom: 16 }}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentTitle}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.4 }}
+                style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 600, color: '#ffffff' }}
               >
-                <Github style={{ width: 22, height: 22 }} /> GitHub
-              </motion.a>
+                {titles[currentTitle]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-              <motion.a
-                href="https://www.linkedin.com/in/deven-bagade-5b092b2b3"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ y: -3, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+          {/* Bio paragraph */}
+          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(1rem, 1.5vw, 1.125rem)', color: 'rgba(255,255,255,0.8)', maxWidth: 560, marginBottom: 32, lineHeight: 1.6 }}>
+            B.Tech IT student with{' '}
+            <span style={{ color: '#d1d5db', fontWeight: 600 }}>9.65 CGPA</span>, passionate about building scalable web and mobile applications that solve real-world problems through innovative technology solutions.
+          </p>
+
+          {/* Contact Info Tags */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', lg: 'justify-start', gap: 12, marginBottom: 32 }}>
+            {[
+              { href: 'tel:+918369183414', icon: Phone, label: '+91 8369183414' },
+              { href: 'mailto:devenbofficial@gmail.com', icon: Mail, label: 'Email Me' },
+            ].map(({ href, icon: Icon, label }) => (
+              <a
+                key={label}
+                href={href}
                 style={{
-                  display: 'inline-flex',
+                  display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  padding: '16px 32px',
-                  background: 'linear-gradient(135deg, #4b5563, #1f2937)',
-                  color: '#ffffff',
+                  gap: 8,
+                  padding: '10px 20px',
                   borderRadius: 12,
-                  fontFamily: "'Outfit', sans-serif", // UI Button Font
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  textDecoration: 'none',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-                }}
-              >
-                <Linkedin style={{ width: 22, height: 22 }} /> LinkedIn
-              </motion.a>
-
-              <motion.a
-                href="#contact"
-                whileHover={{ y: -3, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '16px 32px',
-                  border: '1px solid rgba(255,255,255,0.4)',
+                  border: '1px solid #ffffff',
                   background: 'rgba(255,255,255,0.1)',
                   backdropFilter: 'blur(8px)',
                   color: '#ffffff',
-                  borderRadius: 12,
-                  fontFamily: "'Outfit', sans-serif", // UI Button Font
-                  fontWeight: 700,
-                  fontSize: '1rem',
                   textDecoration: 'none',
-                  transition: 'background 0.3s',
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: '0.85rem',
+                  transition: 'border-color 0.3s, background 0.3s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(156,163,175,0.6)'; e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
               >
-                Hire Me <ArrowDown style={{ width: 22, height: 22 }} />
-              </motion.a>
+                <Icon style={{ width: 18, height: 18, color: '#d1d5db' }} />
+                {label}
+              </a>
+            ))}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 20px',
+              borderRadius: 12,
+              border: '1px solid #ffffff',
+              background: 'rgba(255,255,255,0.1)',
+              color: '#ffffff',
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '0.85rem',
+            }}>
+              <MapPin style={{ width: 18, height: 18, color: '#d1d5db' }} />
+              Kalyan, MH
             </div>
-          </motion.div>
+          </div>
 
-          {/* Orbital Timeline */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-            className="relative w-full flex items-center justify-center"
-            style={{ minHeight: '600px' }}
-          >
-            <RadialOrbitalTimeline />
-          </motion.div>
-        </div>
+          {/* CTA Buttons */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', lg: 'justify-start', gap: 16 }}>
+            <motion.a
+              href="https://github.com/Deven-Bagade"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ y: -3, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '14px 28px',
+                background: '#ffffff',
+                color: '#000000',
+                borderRadius: 12,
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                textDecoration: 'none',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+              }}
+            >
+              <Github style={{ width: 20, height: 20 }} /> GitHub
+            </motion.a>
+
+            <motion.a
+              href="https://www.linkedin.com/in/deven-bagade-5b092b2b3"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ y: -3, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '14px 28px',
+                background: 'linear-gradient(135deg, #4b5563, #1f2937)',
+                color: '#ffffff',
+                borderRadius: 12,
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                textDecoration: 'none',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+              }}
+            >
+              <Linkedin style={{ width: 20, height: 20 }} /> LinkedIn
+            </motion.a>
+
+            <motion.a
+              href="#contact"
+              whileHover={{ y: -3, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '14px 28px',
+                border: '1px solid rgba(255,255,255,0.4)',
+                background: 'rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(8px)',
+                color: '#ffffff',
+                borderRadius: 12,
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                textDecoration: 'none',
+                transition: 'background 0.3s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+            >
+              Hire Me <ArrowDown style={{ width: 20, height: 20 }} />
+            </motion.a>
+          </div>
+        </motion.div>
+
+        {/* RIGHT COLUMN: Orbital Timeline */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+          className="flex items-center justify-center min-h-[560px] z-10 mt-12 lg:mt-0 relative w-full"
+        >
+          <RadialOrbitalTimeline />
+        </motion.div>
       </div>
 
-      {/* Scroll Indicator (Outfit for UI) */}
+      {/* Scroll Indicator */}
       <motion.div
         style={{
           position: 'absolute',
-          bottom: 32,
+          bottom: 24,
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 10,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 8,
+          gap: 6,
           cursor: 'pointer',
         }}
         animate={reduceMotion ? {} : { y: [0, 8, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
       >
-        <span style={{ fontSize: '0.875rem', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)' }}>Scroll</span>
-        <ArrowDown style={{ width: 24, height: 24, color: 'rgba(255,255,255,0.7)' }} />
+        <span style={{ fontSize: '0.75rem', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)' }}>Scroll</span>
+        <ArrowDown style={{ width: 20, height: 20, color: 'rgba(255,255,255,0.7)' }} />
       </motion.div>
     </section>
   );
