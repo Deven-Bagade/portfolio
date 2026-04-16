@@ -1,6 +1,19 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Award, Trophy, Users, Lightbulb, GraduationCap } from 'lucide-react';
+
+// ── Custom Hook for Responsiveness ────────────────────────────────────────────
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+  return matches;
+}
 
 // ── Fonts ─────────────────────────────────────────────────────────────────────
 // @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap');
@@ -12,8 +25,6 @@ const ACCENTS = [
   { primary: '#72ddb7', glow: 'rgba(114,221,183,0.13)', border: 'rgba(114,221,183,0.26)', tag: 'rgba(114,221,183,0.09)', tagBorder: 'rgba(114,221,183,0.28)' }, // teal
   { primary: '#7fbfff', glow: 'rgba(127,191,255,0.13)', border: 'rgba(127,191,255,0.26)', tag: 'rgba(127,191,255,0.09)', tagBorder: 'rgba(127,191,255,0.28)' }, // blue
 ];
-
-// Education accent is now per-item inside EDUCATION array
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ACHIEVEMENTS = [
@@ -117,18 +128,28 @@ function Reveal({
 }
 
 // ── Achievement card ──────────────────────────────────────────────────────────
-function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEMENTS[0]; index: number; onViewDetail?: (id: number) => void }) {
+function AchievementCard({ 
+  item, 
+  index, 
+  isMobile,
+  onViewDetail 
+}: { 
+  item: typeof ACHIEVEMENTS[0]; 
+  index: number; 
+  isMobile: boolean;
+  onViewDetail?: (id: number) => void;
+}) {
   const [hovered, setHovered] = useState(false);
   const accent = ACCENTS[index % ACCENTS.length];
   const Icon = item.icon;
 
   return (
-    <Reveal delay={index * 0.07}>
+    <Reveal delay={isMobile ? 0.05 : index * 0.07}>
       <motion.div
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
         onClick={() => onViewDetail?.(index)}
-        whileHover={{ y: -5 }}
+        whileHover={isMobile ? {} : { y: -5 }} // Disable hover jump on mobile
         transition={{ type: 'spring', stiffness: 280, damping: 22 }}
         style={{
           position: 'relative',
@@ -163,11 +184,13 @@ function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEME
           }}
         />
 
-        {/* Watermark number */}
+        {/* Watermark number - Scaled for mobile */}
         <div style={{
           position: 'absolute', bottom: -8, right: 16,
           fontFamily: "'Cormorant Garamond', serif",
-          fontStyle: 'italic', fontSize: 100, fontWeight: 600,
+          fontStyle: 'italic', 
+          fontSize: 'clamp(60px, 12vw, 100px)', 
+          fontWeight: 600,
           color: accent.primary,
           opacity: hovered ? 0.08 : 0.04,
           lineHeight: 1, pointerEvents: 'none', userSelect: 'none',
@@ -176,9 +199,10 @@ function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEME
           {String(index + 1).padStart(2, '0')}
         </div>
 
-        <div style={{ padding: '28px 28px 24px', position: 'relative', zIndex: 1 }}>
+        {/* Fluid padding for breathing room on small screens */}
+        <div style={{ padding: 'clamp(20px, 5vw, 28px)', position: 'relative', zIndex: 1 }}>
           {/* Icon + subtitle badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
             <motion.div
               animate={{ scale: hovered ? 1.1 : 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 18 }}
@@ -209,7 +233,7 @@ function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEME
           <h3 style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontStyle: 'italic',
-            fontSize: 'clamp(1.2rem, 2vw, 1.5rem)',
+            fontSize: 'clamp(1.2rem, 3.5vw, 1.5rem)',
             fontWeight: 600, color: '#f0ece4',
             marginBottom: 12, lineHeight: 1.2,
             letterSpacing: '-0.01em',
@@ -220,7 +244,8 @@ function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEME
           {/* Description */}
           <p style={{
             fontFamily: "'Outfit', sans-serif",
-            fontWeight: 300, fontSize: 13.5,
+            fontWeight: 300, 
+            fontSize: 'clamp(13px, 3vw, 13.5px)',
             color: 'rgba(255,255,255,0.52)',
             lineHeight: 1.8, marginBottom: 20,
           }}>
@@ -239,7 +264,8 @@ function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEME
                 }} />
                 <p style={{
                   fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 300, fontSize: 13,
+                  fontWeight: 300, 
+                  fontSize: 'clamp(12px, 2.5vw, 13px)',
                   color: 'rgba(255,255,255,0.48)',
                   lineHeight: 1.7, margin: 0,
                 }}>
@@ -255,7 +281,7 @@ function AchievementCard({ item, index, onViewDetail }: { item: typeof ACHIEVEME
 }
 
 // ── Education timeline ────────────────────────────────────────────────────────
-function EducationSection() {
+function EducationSection({ isMobile }: { isMobile: boolean }) {
   return (
     <div style={{ position: 'relative' }}>
       {/* Vertical spine */}
@@ -270,21 +296,37 @@ function EducationSection() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {EDUCATION.map((edu, index) => (
-          <EduItem key={index} edu={edu} index={index} isLast={index === EDUCATION.length - 1} />
+          <EduItem key={index} edu={edu} index={index} isLast={index === EDUCATION.length - 1} isMobile={isMobile} />
         ))}
       </div>
     </div>
   );
 }
 
-function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: number; isLast: boolean }) {
+function EduItem({ 
+  edu, 
+  index, 
+  isLast,
+  isMobile 
+}: { 
+  edu: typeof EDUCATION[0]; 
+  index: number; 
+  isLast: boolean;
+  isMobile: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const Icon = edu.icon;
   const { accent } = edu;
 
   return (
-    <Reveal delay={0.08 + index * 0.1}>
-      <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', paddingBottom: isLast ? 0 : 48, position: 'relative' }}>
+    <Reveal delay={isMobile ? 0.05 : 0.08 + index * 0.1}>
+      <div style={{ 
+        display: 'flex', 
+        gap: 'clamp(16px, 4vw, 32px)', // Fluid gap between spine and card
+        alignItems: 'flex-start', 
+        paddingBottom: isLast ? 0 : 48, 
+        position: 'relative' 
+      }}>
 
         {/* Left: node on the spine */}
         <div style={{ flexShrink: 0, width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
@@ -314,7 +356,7 @@ function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: numb
         <motion.div
           onHoverStart={() => setHovered(true)}
           onHoverEnd={() => setHovered(false)}
-          whileHover={{ x: 6 }}
+          whileHover={isMobile ? {} : { x: 6 }}
           transition={{ type: 'spring', stiffness: 300, damping: 24 }}
           style={{
             flex: 1,
@@ -348,16 +390,25 @@ function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: numb
             }}
           />
 
-          <div style={{ padding: '24px 28px 24px 32px', position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
+          <div style={{ padding: 'clamp(20px, 4vw, 24px) clamp(20px, 5vw, 32px)', position: 'relative', zIndex: 1 }}>
+            
+            {/* Wrapper for Title & Score to allow them to drop cleanly on mobile */}
+            <div style={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              alignItems: 'flex-start', 
+              justifyContent: 'space-between', 
+              gap: 16, 
+              marginBottom: 16 
+            }}>
 
               {/* Title block */}
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <div style={{ flex: 1, minWidth: 'min(100%, 200px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 6 }}>
                   <h4 style={{
                     fontFamily: "'Cormorant Garamond', serif",
                     fontStyle: 'italic',
-                    fontSize: index === 0 ? 'clamp(1.25rem, 2.2vw, 1.65rem)' : 'clamp(1.1rem, 1.8vw, 1.35rem)',
+                    fontSize: index === 0 ? 'clamp(1.25rem, 3.5vw, 1.65rem)' : 'clamp(1.1rem, 3vw, 1.35rem)',
                     fontWeight: 600, color: '#f0ece4',
                     lineHeight: 1.15, letterSpacing: '-0.01em', margin: 0,
                   }}>
@@ -373,7 +424,6 @@ function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: numb
                     border: `1px solid ${accent.tagBorder}`,
                     padding: '3px 9px', borderRadius: 999,
                     whiteSpace: 'nowrap',
-                    flexShrink: 0,
                   }}>
                     {edu.status}
                   </span>
@@ -390,7 +440,7 @@ function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: numb
 
                 <p style={{
                   fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 300, fontSize: 13,
+                  fontWeight: 300, fontSize: 'clamp(12px, 3vw, 13px)',
                   color: 'rgba(255,255,255,0.42)',
                   lineHeight: 1.5, margin: 0,
                 }}>
@@ -398,8 +448,17 @@ function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: numb
                 </p>
               </div>
 
-              {/* Score + period block */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+              {/* Score + period block: Transforms into a row underneath on mobile */}
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'row' : 'column', 
+                alignItems: isMobile ? 'center' : 'flex-end', 
+                justifyContent: isMobile ? 'space-between' : 'flex-start',
+                gap: 8, 
+                flexShrink: 0,
+                width: isMobile ? '100%' : 'auto',
+                marginTop: isMobile ? 8 : 0,
+              }}>
                 {/* Period */}
                 <span style={{
                   fontFamily: "'DM Mono', monospace",
@@ -474,12 +533,14 @@ function EduItem({ edu, index, isLast }: { edu: typeof EDUCATION[0]; index: numb
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export function Achievements({ onViewDetail }: { onViewDetail?: (id: number) => void }) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   return (
     <section
       id="achievements"
       style={{
         position: 'relative', overflow: 'hidden',
-        padding: '120px 0 100px',
+        padding: 'clamp(80px, 15vw, 120px) 0 clamp(60px, 15vw, 100px)', // Fluid top/bottom padding
         background: '#080808',
         fontFamily: "'Outfit', sans-serif",
       }}
@@ -506,11 +567,11 @@ export function Achievements({ onViewDetail }: { onViewDetail?: (id: number) => 
       <div style={{
         position: 'relative', zIndex: 10,
         maxWidth: 1400, margin: '0 auto',
-        padding: '0 clamp(16px, 4vw, 64px)',
+        padding: '0 clamp(16px, 4vw, 64px)', // Fluid horizontal padding
       }}>
 
         {/* ── Section header ── */}
-        <Reveal style={{ textAlign: 'center', marginBottom: 72 }}>
+        <Reveal style={{ textAlign: 'center', marginBottom: 'clamp(48px, 10vw, 72px)' }}>
           <span style={{
             fontFamily: "'DM Mono', monospace",
             fontSize: 10, letterSpacing: '0.18em',
@@ -523,7 +584,7 @@ export function Achievements({ onViewDetail }: { onViewDetail?: (id: number) => 
           <h2 style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontStyle: 'italic',
-            fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
+            fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', // Fluid typography
             fontWeight: 600, color: '#f0ece4',
             letterSpacing: '-0.02em', lineHeight: 1.05,
             marginBottom: 18,
@@ -532,7 +593,7 @@ export function Achievements({ onViewDetail }: { onViewDetail?: (id: number) => 
           </h2>
           <p style={{
             fontFamily: "'Outfit', sans-serif",
-            fontWeight: 300, fontSize: 14,
+            fontWeight: 300, fontSize: 'clamp(14px, 3vw, 15px)',
             color: 'rgba(255,255,255,0.38)',
             maxWidth: 400, margin: '0 auto',
             lineHeight: 1.85,
@@ -541,15 +602,15 @@ export function Achievements({ onViewDetail }: { onViewDetail?: (id: number) => 
           </p>
         </Reveal>
 
-        {/* ── Achievements bento: 2-col ── */}
+        {/* ── Achievements bento: Transitions to 1-col on mobile ── */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
           gap: 14,
-          marginBottom: 56,
+          marginBottom: 'clamp(48px, 10vw, 64px)',
         }}>
           {ACHIEVEMENTS.map((item, i) => (
-            <AchievementCard key={i} item={item} index={i} onViewDetail={onViewDetail} />
+            <AchievementCard key={i} item={item} index={i} onViewDetail={onViewDetail} isMobile={isMobile} />
           ))}
         </div>
 
@@ -571,7 +632,7 @@ export function Achievements({ onViewDetail }: { onViewDetail?: (id: number) => 
         </Reveal>
 
         {/* ── Education timeline ── */}
-        <EducationSection />
+        <EducationSection isMobile={isMobile} />
 
       </div>
     </section>

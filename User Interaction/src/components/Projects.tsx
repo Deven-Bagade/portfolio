@@ -1,6 +1,19 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ExternalLink, Github, Smartphone, Globe, MessageSquare, Video, ShoppingCart, ArrowUpRight } from 'lucide-react';
+
+// ── Custom Hook for Responsiveness ────────────────────────────────────────────
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+  return matches;
+}
 
 // ── Fonts ─────────────────────────────────────────────────────────────────────
 // Add to index.html / global CSS:
@@ -108,26 +121,42 @@ function Reveal({
 function ProjectCard({
   project,
   index,
+  isMobile,
+  isTablet,
   onViewDetail,
 }: {
   project: typeof PROJECTS[0];
   index: number;
+  isMobile: boolean;
+  isTablet: boolean;
   onViewDetail?: (id: number) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const accent = ACCENTS[index % ACCENTS.length];
   const Icon = project.icon;
 
-  // Featured (first) card spans full width on large screens
-  const isFeatured = index === 0;
+  // Dynamic grid spanning logic to fill rows perfectly across breakpoints
+  let span = 'span 1';
+  if (isMobile) {
+    span = 'span 1';
+  } else if (isTablet) {
+    // On tablet (2 columns), make the first two and the 5th card span full width to avoid holes
+    if (index === 0 || index === 1 || index === 4) span = 'span 2';
+  } else {
+    // On desktop (3 columns), only the first card spans 2 columns
+    if (index === 0) span = 'span 2';
+  }
+
+  // Only apply "featured" extra padding/sizes if it's currently spanning wider than a standard card
+  const isFeatured = span === 'span 2' && !isMobile;
 
   return (
-    <Reveal delay={index * 0.06} style={{ gridColumn: isFeatured ? 'span 2' : 'span 1', minWidth: 0 }}>
+    <Reveal delay={isMobile ? 0.05 : index * 0.06} style={{ gridColumn: span, minWidth: 0 }}>
       <motion.div
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
         onClick={() => onViewDetail?.(index)}
-        whileHover={{ y: -6 }}
+        whileHover={isMobile ? {} : { y: -6 }} // Disable hover float on mobile
         transition={{ type: 'spring', stiffness: 280, damping: 22 }}
         style={{
           position: 'relative',
@@ -165,12 +194,12 @@ function ProjectCard({
           }}
         />
 
-        {/* Large watermark number */}
+        {/* Large watermark number - clamped for mobile */}
         <div style={{
           position: 'absolute', bottom: -10, right: 16,
           fontFamily: "'Cormorant Garamond', serif",
           fontStyle: 'italic',
-          fontSize: 120,
+          fontSize: 'clamp(80px, 12vw, 120px)',
           fontWeight: 600,
           color: accent.primary,
           opacity: hovered ? 0.07 : 0.04,
@@ -182,7 +211,12 @@ function ProjectCard({
           {String(index + 1).padStart(2, '0')}
         </div>
 
-        <div style={{ padding: isFeatured ? '36px 36px 32px' : '28px 28px 24px', position: 'relative', zIndex: 1 }}>
+        {/* Inner Padding - adjusted for mobile breathing room */}
+        <div style={{ 
+            padding: isMobile ? '24px 20px' : (isFeatured ? '36px 36px 32px' : '28px 28px 24px'), 
+            position: 'relative', 
+            zIndex: 1 
+        }}>
 
           {/* Top row: icon + label badge + action buttons */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -220,9 +254,9 @@ function ProjectCard({
               </span>
             </div>
 
-            {/* Action buttons — slide in on hover */}
+            {/* Action buttons — slide in on hover (Always visible on mobile) */}
             <motion.div
-              animate={{ opacity: hovered ? 1 : 0, x: hovered ? 0 : 10 }}
+              animate={{ opacity: isMobile || hovered ? 1 : 0, x: isMobile || hovered ? 0 : 10 }}
               transition={{ duration: 0.25 }}
               style={{ display: 'flex', gap: 8 }}
             >
@@ -266,7 +300,7 @@ function ProjectCard({
             <h3 style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontStyle: 'italic',
-              fontSize: isFeatured ? 'clamp(1.6rem, 2.5vw, 2.2rem)' : 'clamp(1.25rem, 2vw, 1.55rem)',
+              fontSize: isFeatured ? 'clamp(1.6rem, 3vw, 2.2rem)' : 'clamp(1.25rem, 2.5vw, 1.55rem)',
               fontWeight: 600,
               color: '#f0ece4',
               lineHeight: 1.15,
@@ -292,7 +326,7 @@ function ProjectCard({
           <p style={{
             fontFamily: "'Outfit', sans-serif",
             fontWeight: 300,
-            fontSize: 14,
+            fontSize: 'clamp(13px, 3vw, 14px)',
             color: 'rgba(255,255,255,0.55)',
             lineHeight: 1.8,
             marginBottom: 20,
@@ -358,13 +392,16 @@ function ProjectCard({
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void }) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isTablet = useMediaQuery('(max-width: 1024px)');
+
   return (
     <section
       id="projects"
       style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: '120px 0 100px',
+        padding: 'clamp(80px, 15vw, 120px) 0 clamp(60px, 15vw, 100px)', // Fluid vertical padding
         background: '#080808',
         fontFamily: "'Outfit', sans-serif",
       }}
@@ -394,11 +431,11 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
       <div style={{
         position: 'relative', zIndex: 10,
         maxWidth: 1400, margin: '0 auto',
-        padding: '0 clamp(16px, 4vw, 64px)',
+        padding: '0 clamp(16px, 5vw, 64px)', // Fluid horizontal padding
       }}>
 
         {/* ── Header ── */}
-        <Reveal style={{ textAlign: 'center', marginBottom: 72 }}>
+        <Reveal style={{ textAlign: 'center', marginBottom: 'clamp(48px, 10vw, 72px)' }}>
           <span style={{
             fontFamily: "'DM Mono', monospace",
             fontSize: 10,
@@ -413,7 +450,7 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
           <h2 style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontStyle: 'italic',
-            fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
+            fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', // Fluid typography
             fontWeight: 600,
             color: '#f0ece4',
             letterSpacing: '-0.02em',
@@ -425,7 +462,7 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
           <p style={{
             fontFamily: "'Outfit', sans-serif",
             fontWeight: 300,
-            fontSize: 14,
+            fontSize: 'clamp(14px, 3vw, 15px)',
             color: 'rgba(255,255,255,0.38)',
             maxWidth: 420,
             margin: '0 auto',
@@ -436,36 +473,37 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
         </Reveal>
 
         {/* ── Bento grid ── */}
-        {/* Row 1: featured (span 2) + 1 normal */}
+        
+        {/* Row 1: Desktop (3-col), Tablet (2-col), Mobile (1-col) */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
           gap: 14,
           marginBottom: 14,
         }}>
-          <ProjectCard project={PROJECTS[0]} index={0} onViewDetail={onViewDetail} />
-          <ProjectCard project={PROJECTS[1]} index={1} onViewDetail={onViewDetail} />
+          <ProjectCard project={PROJECTS[0]} index={0} isMobile={isMobile} isTablet={isTablet} onViewDetail={onViewDetail} />
+          <ProjectCard project={PROJECTS[1]} index={1} isMobile={isMobile} isTablet={isTablet} onViewDetail={onViewDetail} />
         </div>
 
-        {/* Row 2: 3 equal columns */}
+        {/* Row 2: Desktop (3-col), Tablet (2-col), Mobile (1-col) */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
           gap: 14,
           marginBottom: 14,
         }}>
-          <ProjectCard project={PROJECTS[2]} index={2} onViewDetail={onViewDetail} />
-          <ProjectCard project={PROJECTS[3]} index={3} onViewDetail={onViewDetail} />
-          <ProjectCard project={PROJECTS[4]} index={4} onViewDetail={onViewDetail} />
+          <ProjectCard project={PROJECTS[2]} index={2} isMobile={isMobile} isTablet={isTablet} onViewDetail={onViewDetail} />
+          <ProjectCard project={PROJECTS[3]} index={3} isMobile={isMobile} isTablet={isTablet} onViewDetail={onViewDetail} />
+          <ProjectCard project={PROJECTS[4]} index={4} isMobile={isMobile} isTablet={isTablet} onViewDetail={onViewDetail} />
         </div>
 
-        {/* Row 3: last card + CTA */}
+        {/* Row 3: Desktop (2-col), Tablet (2-col), Mobile (1-col) */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
           gap: 14,
         }}>
-          <ProjectCard project={PROJECTS[5]} index={5} onViewDetail={onViewDetail} />
+          <ProjectCard project={PROJECTS[5]} index={5} isMobile={isMobile} isTablet={isTablet} onViewDetail={onViewDetail} />
 
           {/* GitHub CTA card */}
           <Reveal delay={0.35}>
@@ -473,7 +511,7 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
               href="https://github.com/Deven-Bagade"
               target="_blank"
               rel="noopener noreferrer"
-              whileHover={{ y: -6 }}
+              whileHover={isMobile ? {} : { y: -6 }}
               transition={{ type: 'spring', stiffness: 280, damping: 22 }}
               style={{
                 display: 'flex',
@@ -484,7 +522,7 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
                 borderRadius: 24,
                 border: '1px solid rgba(255,255,255,0.08)',
                 background: 'rgba(10,10,10,0.7)',
-                padding: '40px 32px',
+                padding: 'clamp(32px, 6vw, 40px) clamp(20px, 5vw, 32px)', // Fluid padding
                 textDecoration: 'none',
                 height: '100%',
                 position: 'relative',
@@ -527,7 +565,7 @@ export function Projects({ onViewDetail }: { onViewDetail?: (id: number) => void
               <h3 style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontStyle: 'italic',
-                fontSize: 'clamp(1.3rem, 2vw, 1.8rem)',
+                fontSize: 'clamp(1.4rem, 4vw, 1.8rem)',
                 fontWeight: 600,
                 color: '#f0ece4',
                 marginBottom: 14,
