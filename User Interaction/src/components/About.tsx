@@ -96,9 +96,10 @@ export function About() {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: '112px 24px',
+        // Responsive vertical padding using clamp
+        padding: 'clamp(64px, 10vw, 112px) 24px',
         background: '#080808',
-        fontFamily: "'Outfit', sans-serif", // Base body text font
+        fontFamily: "'Outfit', sans-serif",
       }}
     >
       {/* ── Google Fonts ── */}
@@ -139,7 +140,7 @@ export function About() {
       <div style={{ position: 'relative', zIndex: 10, maxWidth: 1100, margin: '0 auto' }}>
 
         {/* ─── Section header ─── */}
-        <motion.div {...fadeUp(0)} style={{ textAlign: 'center', marginBottom: 80 }}>
+        <motion.div {...fadeUp(0)} style={{ textAlign: 'center', marginBottom: 'clamp(48px, 8vw, 80px)' }}>
           {/* eyebrow */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -156,7 +157,7 @@ export function About() {
 
           <h2 style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 'clamp(3rem, 6vw, 5rem)',
+            fontSize: 'clamp(2.5rem, 8vw, 5rem)', // Scaled down for mobile
             fontWeight: 900,
             letterSpacing: '-0.03em',
             lineHeight: 1,
@@ -173,7 +174,7 @@ export function About() {
             margin: '0 auto',
             color: 'rgba(255,255,255,0.5)',
             fontFamily: "'Outfit', sans-serif",
-            fontSize: 15,
+            fontSize: 'clamp(14px, 3vw, 15px)', // Responsive text
             lineHeight: 1.8,
             letterSpacing: '0.02em',
           }}>
@@ -182,7 +183,13 @@ export function About() {
         </motion.div>
 
         {/* ─── Main 2-col grid ─── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: 32, marginBottom: 32 }}>
+        <div style={{ 
+            display: 'grid', 
+            // The min(100%, 400px) allows the grid to collapse into a single column on mobile screens
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', 
+            gap: 32, 
+            marginBottom: 32 
+        }}>
 
           {/* ── Left col ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -194,7 +201,7 @@ export function About() {
               border: '1px solid rgba(255,255,255,0.1)',
               background: 'rgba(15,15,15,0.85)',
               backdropFilter: 'blur(24px)',
-              padding: 36,
+              padding: 'clamp(24px, 5vw, 36px)', // Responsive padding
               boxShadow: '0 24px 48px rgba(0,0,0,0.5)',
               overflow: 'hidden',
             }}>
@@ -215,7 +222,7 @@ export function About() {
                   <BookOpen size={22} color="#e2e8f0" />
                 </div>
                 <div>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Background</h3>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(20px, 5vw, 24px)', fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Background</h3>
                   <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                     VIT Mumbai · 3rd Year
                   </span>
@@ -224,20 +231,25 @@ export function About() {
 
               <HR />
 
-              <p style={{ fontFamily: "'Outfit', sans-serif", color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, marginBottom: 14 }}>
+              <p style={{ fontFamily: "'Outfit', sans-serif", color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 'clamp(14px, 3vw, 15px)', marginBottom: 14 }}>
                 I'm a 3rd-year B.Tech Information Technology student at Vidyalankar Institute of Technology,
                 Mumbai, maintaining a{' '}
                 <span style={{ color: '#e2e8f0', fontWeight: 700 }}>9.65 CGPA</span>. My journey in technology has been
                 driven by a passion for creating impactful solutions that bridge the gap between user needs and technical innovation.
               </p>
-              <p style={{ fontFamily: "'Outfit', sans-serif", color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 15, margin: 0 }}>
+              <p style={{ fontFamily: "'Outfit', sans-serif", color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, fontSize: 'clamp(14px, 3vw, 15px)', margin: 0 }}>
                 With hands-on experience in full-stack web and mobile app development, I've worked on diverse projects —
                 from mental health support applications to e-commerce platforms — always focusing on scalability, UX, and clean code.
               </p>
             </motion.div>
 
             {/* Stats row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+            <div style={{ 
+                display: 'grid', 
+                // Uses auto-fit to wrap stats gracefully on extremely narrow devices
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 100px), 1fr))', 
+                gap: 16 
+            }}>
               {stats.map((stat, i) => {
                 const Icon = stat.icon;
                 return (
@@ -251,7 +263,7 @@ export function About() {
                       border: '1px solid rgba(255,255,255,0.1)',
                       background: 'rgba(15,15,15,0.8)',
                       backdropFilter: 'blur(16px)',
-                      padding: '24px 12px',
+                      padding: 'clamp(16px, 3vw, 24px) 12px', // Responsive padding
                       textAlign: 'center',
                       boxShadow: '0 12px 32px rgba(0,0,0,0.4)',
                       overflow: 'hidden',
@@ -261,7 +273,8 @@ export function About() {
                     {/* glow dot */}
                     <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', width: 60, height: 60, borderRadius: '50%', background: `${stat.accent}12`, filter: 'blur(16px)' }} />
                     <div style={{
-                      width: 40, height: 40, borderRadius: 12,
+                      width: 'clamp(32px, 8vw, 40px)', height: 'clamp(32px, 8vw, 40px)', // Scales icon container
+                      borderRadius: 12,
                       background: 'linear-gradient(135deg, rgba(71,85,105,0.8), rgba(30,41,59,0.9))',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       margin: '0 auto 14px',
@@ -269,7 +282,7 @@ export function About() {
                     }}>
                       <Icon size={18} color={stat.accent} />
                     </div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 900, color: stat.accent, lineHeight: 1, marginBottom: 6, letterSpacing: '-0.02em' }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 900, color: stat.accent, lineHeight: 1, marginBottom: 6, letterSpacing: '-0.02em' }}>
                       <Counter end={stat.value} duration={2} suffix={stat.suffix} decimals={stat.decimals} />
                     </div>
                     <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
@@ -296,7 +309,7 @@ export function About() {
                     border: '1px solid rgba(255,255,255,0.09)',
                     background: 'rgba(12,12,12,0.85)',
                     backdropFilter: 'blur(20px)',
-                    padding: '28px 28px 26px',
+                    padding: 'clamp(20px, 5vw, 28px)', // Responsive padding
                     boxShadow: '0 16px 40px rgba(0,0,0,0.45)',
                     overflow: 'hidden',
                     cursor: 'default',
@@ -323,8 +336,8 @@ export function About() {
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <h4 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{card.title}</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                        <h4 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(18px, 4vw, 20px)', fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{card.title}</h4>
                         <span style={{
                           fontFamily: "'DM Mono', monospace",
                           fontSize: 9,
@@ -339,7 +352,7 @@ export function About() {
                           {card.tag}
                         </span>
                       </div>
-                      <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, margin: 0 }}>{card.body}</p>
+                      <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(13px, 3vw, 14px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, margin: 0 }}>{card.body}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -365,7 +378,7 @@ export function About() {
             border: '1px solid rgba(255,255,255,0.1)',
             background: 'rgba(10,10,10,0.9)',
             backdropFilter: 'blur(32px)',
-            padding: '48px 48px',
+            padding: 'clamp(28px, 6vw, 48px)', // Responsive padding
             boxShadow: '0 32px 64px rgba(0,0,0,0.6)',
             overflow: 'hidden',
           }}>
@@ -375,7 +388,7 @@ export function About() {
             <div style={{ position: 'absolute', bottom: -60, right: -60, width: 200, height: 200, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: -90, right: -90, width: 280, height: 280, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.025)', pointerEvents: 'none' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 'clamp(12px, 3vw, 18px)', marginBottom: 24 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: 16, flexShrink: 0,
                 background: 'linear-gradient(135deg, #475569, #0f172a)',
@@ -388,7 +401,7 @@ export function About() {
               <div>
                 <h3 style={{
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
+                  fontSize: 'clamp(1.4rem, 6vw, 2rem)',
                   fontWeight: 900,
                   margin: 0,
                   letterSpacing: '-0.025em',
@@ -406,7 +419,7 @@ export function About() {
 
             <HR />
 
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 16, color: 'rgba(255,255,255,0.68)', lineHeight: 1.85, margin: 0, maxWidth: 820 }}>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(14px, 3vw, 16px)', color: 'rgba(255,255,255,0.68)', lineHeight: 1.85, margin: 0, maxWidth: 820 }}>
               B.Tech Information Technology 3rd-year student at Vidyalankar Institute of Technology with a{' '}
               <span style={{ color: '#e2e8f0', fontWeight: 700 }}>9.65 CGPA</span>, experienced in developing{' '}
               <span style={{ color: '#ffffff', fontWeight: 700 }}>full-stack web and mobile applications</span>. Proven ability to
@@ -415,7 +428,7 @@ export function About() {
             </p>
 
             {/* bottom row */}
-            <div style={{ marginTop: 28, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ marginTop: 28, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {['Full-Stack Dev', 'Mobile Apps', 'Open Source', 'Hackathons', 'Cloud & DevOps'].map((tag, i) => (
                 <motion.span
                   key={tag}
@@ -424,8 +437,8 @@ export function About() {
                   exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.25 } }}
                   viewport={{ once: false, amount: 0.5 }}
                   style={{
-                    fontFamily: "'DM Mono', monospace", // Swapped Space Mono for DM Mono
-                    fontSize: 10,
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 'clamp(9px, 2.5vw, 10px)',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
                     color: 'rgba(255,255,255,0.5)',
