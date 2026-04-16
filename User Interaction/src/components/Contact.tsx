@@ -1,6 +1,19 @@
 import { Mail, Phone, MapPin, Github, Linkedin, Send, ArrowUpRight, Sparkles, Terminal } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { motion, useInView, useReducedMotion} from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
+
+// ── Custom Hook for Responsiveness ────────────────────────────────────────────
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+  return matches;
+}
 
 // ── Easing ────────────────────────────────────────────────────────────────────
 const EASE_IN  = [0.22, 1, 0.36, 1];
@@ -10,20 +23,6 @@ const fadeUp = (delay = 0) => ({
   initial:     { opacity: 0, y: 40 },
   whileInView: { opacity: 1, y: 0, transition: { duration: 0.7, delay, ease: EASE_IN } },
   exit:        { opacity: 0, y: 40, transition: { duration: 0.4, ease: EASE_OUT } },
-  viewport:    { once: false, amount: 0.1 },
-});
-
-const fadeLeft = (delay = 0) => ({
-  initial:     { opacity: 0, x: -50 },
-  whileInView: { opacity: 1, x: 0, transition: { duration: 0.7, delay, ease: EASE_IN } },
-  exit:        { opacity: 0, x: -50, transition: { duration: 0.4, ease: EASE_OUT } },
-  viewport:    { once: false, amount: 0.1 },
-});
-
-const fadeRight = (delay = 0) => ({
-  initial:     { opacity: 0, x: 50 },
-  whileInView: { opacity: 1, x: 0, transition: { duration: 0.7, delay, ease: EASE_IN } },
-  exit:        { opacity: 0, x: 50, transition: { duration: 0.4, ease: EASE_OUT } },
   viewport:    { once: false, amount: 0.1 },
 });
 
@@ -114,13 +113,13 @@ function GlitchText({ text }: { text: string }) {
 }
 
 // ── Magnetic card (tilts toward mouse) ───────────────────────────────────────
-function MagneticCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
+function MagneticCard({ children, style = {}, isMobile = false }: { children: React.ReactNode; style?: React.CSSProperties; isMobile?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
+    if (isMobile || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -133,7 +132,7 @@ function MagneticCard({ children, style = {} }: { children: React.ReactNode; sty
     <div
       ref={ref}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => !isMobile && setHovered(true)}
       onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setHovered(false); }}
       style={{
         ...style,
@@ -146,7 +145,7 @@ function MagneticCard({ children, style = {} }: { children: React.ReactNode; sty
   );
 }
 
-// ── Animated border card (refined) ────────────────────────────────────────────
+// ── Animated border card ────────────────────────────────────────────
 function AnimBorderCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{ position: 'relative', borderRadius: 24, ...style }}>
@@ -206,6 +205,7 @@ function PaperPlane() {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export function Contact() {
   const reduceMotion = useReducedMotion();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const contactMethods = [
     { icon: Mail,   title: 'Email',    value: 'devenbofficial@gmail.com',        href: 'mailto:devenbofficial@gmail.com', tag: 'DIRECT' },
@@ -214,7 +214,7 @@ export function Contact() {
   ];
 
   const socialLinks = [
-    { icon: Github,   title: 'GitHub',   sub: 'Deven-Bagade',            href: 'https://github.com/Deven-Bagade',                           tag: 'CODE' },
+    { icon: Github,   title: 'GitHub',   sub: 'Deven-Bagade',            href: 'https://github.com/Deven-Bagade',                            tag: 'CODE' },
     { icon: Linkedin, title: 'LinkedIn', sub: 'deven-bagade-5b092b2b3',  href: 'https://www.linkedin.com/in/deven-bagade-5b092b2b3',        tag: 'NETWORK' },
   ];
 
@@ -223,9 +223,9 @@ export function Contact() {
       id="contact"
       style={{
         position: 'relative', overflow: 'hidden',
-        padding: '112px 24px 64px',
+        padding: 'clamp(80px, 15vw, 112px) clamp(16px, 5vw, 24px) clamp(60px, 10vw, 80px)', // Fluid padding
         background: '#080808',
-        fontFamily: "'Outfit', sans-serif", // Base Body text font
+        fontFamily: "'Outfit', sans-serif",
       }}
     >
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Outfit:wght@100..900&display=swap" />
@@ -252,8 +252,8 @@ export function Contact() {
         />
       )}
 
-      {/* ── Floating particles ── */}
-      {!reduceMotion && [...Array(18)].map((_, i) => (
+      {/* ── Floating particles (hidden on mobile to save performance/clutter) ── */}
+      {!reduceMotion && !isMobile && [...Array(18)].map((_, i) => (
         <motion.div
           key={i}
           style={{
@@ -272,7 +272,7 @@ export function Contact() {
       <div style={{ position: 'relative', zIndex: 10, maxWidth: 1100, margin: '0 auto' }}>
 
         {/* ── Header ── */}
-        <motion.div {...fadeUp(0)} style={{ textAlign: 'center', marginBottom: 80 }}>
+        <motion.div {...fadeUp(0)} style={{ textAlign: 'center', marginBottom: 'clamp(48px, 10vw, 80px)' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '6px 18px', borderRadius: 9999,
@@ -286,7 +286,7 @@ export function Contact() {
             </span>
           </div>
 
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, marginBottom: 20 }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(2.8rem, 8vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.035em', lineHeight: 1, marginBottom: 20 }}>
             <GlitchText text="Get In Touch" />
           </h2>
 
@@ -299,7 +299,9 @@ export function Contact() {
             backdropFilter: 'blur(12px)',
             marginBottom: 24,
             fontFamily: "'DM Mono', monospace",
-            fontSize: 13,
+            fontSize: 'clamp(11px, 3vw, 13px)', // Responsive text inside terminal
+            maxWidth: '100%',
+            overflow: 'hidden',
           }}>
             <span style={{ color: '#475569' }}>$ </span>
             <Typewriter lines={[
@@ -310,22 +312,27 @@ export function Contact() {
             ]} />
           </div>
 
-          <p style={{ maxWidth: 480, margin: '0 auto', color: 'rgba(255,255,255,0.45)', fontFamily: "'Outfit', sans-serif", fontSize: 14, lineHeight: 1.9, letterSpacing: '0.02em' }}>
+          <p style={{ maxWidth: 480, margin: '0 auto', color: 'rgba(255,255,255,0.45)', fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(13px, 3vw, 14px)', lineHeight: 1.9, letterSpacing: '0.02em' }}>
             Currently open to opportunities. Reach out — I respond within 24 hours.
           </p>
         </motion.div>
 
         {/* ── Contact method cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 20 }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', // Fluid minmax logic
+          gap: 20, 
+          marginBottom: 20 
+        }}>
           {contactMethods.map((m, i) => {
             const Icon = m.icon;
             const inner = (
-              <MagneticCard style={{
+              <MagneticCard isMobile={isMobile} style={{
                 borderRadius: 22,
                 border: '1px solid rgba(255,255,255,0.09)',
                 background: 'rgba(12,12,12,0.9)',
                 backdropFilter: 'blur(24px)',
-                padding: '32px 28px',
+                padding: 'clamp(24px, 5vw, 32px) clamp(20px, 5vw, 28px)', // Fluid padding inside cards
                 boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
                 cursor: m.href ? 'pointer' : 'default',
                 position: 'relative',
@@ -356,7 +363,7 @@ export function Contact() {
                 </div>
 
                 <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: '#475569', textTransform: 'uppercase', marginBottom: 6 }}>{m.title}</p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#e2e8f0', margin: 0, wordBreak: 'break-all', lineHeight: 1.4 }}>{m.value}</p>
+                <p style={{ fontSize: 'clamp(14px, 3.5vw, 15px)', fontWeight: 700, color: '#e2e8f0', margin: 0, wordBreak: 'break-all', lineHeight: 1.4 }}>{m.value}</p>
 
                 {m.href && (
                   <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -382,7 +389,12 @@ export function Contact() {
         </div>
 
         {/* ── Social links — animated border ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 28 }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', // Fluid minmax logic
+          gap: 20, 
+          marginBottom: 28 
+        }}>
           {socialLinks.map((s, i) => {
             const Icon = s.icon;
             return (
@@ -394,11 +406,11 @@ export function Contact() {
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none', display: 'block' }}
                   >
-                    <MagneticCard style={{
+                    <MagneticCard isMobile={isMobile} style={{
                       borderRadius: 24,
                       background: 'rgba(10,10,10,0.95)',
                       backdropFilter: 'blur(24px)',
-                      padding: '28px 28px',
+                      padding: 'clamp(20px, 5vw, 28px)',
                       cursor: 'pointer',
                       position: 'relative',
                       overflow: 'hidden',
@@ -447,13 +459,14 @@ export function Contact() {
             border: '1px solid rgba(255,255,255,0.1)',
             background: 'rgba(8,8,8,0.95)',
             backdropFilter: 'blur(32px)',
-            padding: 'clamp(36px, 5vw, 60px)',
+            padding: 'clamp(32px, 6vw, 60px) clamp(24px, 5vw, 60px)', // Fluid padding inside CTA
             boxShadow: '0 40px 80px rgba(0,0,0,0.7)',
             overflow: 'hidden',
             display: 'grid',
-            gridTemplateColumns: '1fr auto',
-            gap: 32,
+            gridTemplateColumns: isMobile ? '1fr' : '1fr auto', // Stack columns on mobile
+            gap: isMobile ? 24 : 32,
             alignItems: 'center',
+            textAlign: isMobile ? 'center' : 'left', // Center text on mobile
           }}>
             {/* top shimmer */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }} />
@@ -468,7 +481,7 @@ export function Contact() {
               ))}
             </div>
 
-            <div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <Sparkles size={16} color="#94a3b8" />
                 <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.16em', color: '#64748b', textTransform: 'uppercase' }}>Open to Work</span>
@@ -476,7 +489,7 @@ export function Contact() {
 
               <h3 style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, letterSpacing: '-0.03em',
+                fontSize: 'clamp(1.6rem, 5vw, 2.4rem)', fontWeight: 900, letterSpacing: '-0.03em',
                 margin: '0 0 12px',
                 background: 'linear-gradient(90deg, #f1f5f9, #94a3b8)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
@@ -484,12 +497,12 @@ export function Contact() {
                 Let's Build Something Great
               </h3>
 
-              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, margin: '0 0 20px', maxWidth: 520 }}>
+              <p style={{ fontSize: 'clamp(13px, 3.5vw, 15px)', color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, margin: '0 0 20px', maxWidth: 520 }}>
                 Open to internships, full-time roles, freelance projects, and open-source collaborations.
                 Let's create innovative solutions together.
               </p>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: isMobile ? 'center' : 'flex-start' }}>
                 {['Internship', 'Full-time', 'Freelance', 'Open Source'].map((tag) => (
                   <span key={tag} style={{
                     fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -514,6 +527,7 @@ export function Contact() {
                 padding: '24px 32px',
                 borderRadius: 20,
                 flexShrink: 0,
+                width: isMobile ? '100%' : 'auto', // Full width button on mobile
                 background: 'linear-gradient(135deg, #334155, #1e293b)',
                 border: '1px solid rgba(255,255,255,0.12)',
                 boxShadow: '0 16px 40px rgba(0,0,0,0.6)',
@@ -546,7 +560,7 @@ export function Contact() {
         {/* ── Footer ── */}
         <motion.div {...fadeUp(0.4)} style={{ marginTop: 64, textAlign: 'center' }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 12,
+            display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 12,
             padding: '14px 28px', borderRadius: 14,
             border: '1px solid rgba(255,255,255,0.07)',
             background: 'rgba(255,255,255,0.03)',
@@ -561,7 +575,7 @@ export function Contact() {
               />
               <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: '#94a3b8', display: 'inline-flex' }} />
             </span>
-            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, letterSpacing: '0.06em' }}>
+            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 'clamp(9px, 2.5vw, 11px)', color: 'rgba(255,255,255,0.35)', margin: 0, letterSpacing: '0.06em' }}>
               © 2026 Deven Bagade · Kalyan, Maharashtra
             </p>
           </div>

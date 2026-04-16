@@ -1,0 +1,14 @@
+/* html, body {
+  width: 100%; /* CHANGED from 100vw */
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: #080808;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+} */
