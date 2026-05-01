@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://deven-bagade-portfolio.vercel.app/sitemap.xml
